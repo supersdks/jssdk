@@ -5,7 +5,7 @@
   "source": "allowlisted-export",
   "files": {
     ".github/workflows/ci.yml": "ab1f3ab151decfdc117ac7c19e70696577e1f66ba42d1254977ecc8330e2bdcb",
-    ".github/workflows/publish.yml": "6bd89c4e814dc3510a7b6cf49e198d726d2ff75a7b2fcef098a3d12d20286e93",
+    ".github/workflows/publish.yml": "ee2633a42b843670ebb4d3c45d06eab50e8cd5543b93aad70ab9601388c0040b",
     ".gitignore": "74d2ad42f2cfe74e70c62a2091a5b530a4fb2fa29798e59ea8e6a8cfb7ae9862",
     "CHANGELOG.md": "c2724b965dca5da494d67cacaf05caf7ed7210a3dabcbd7ec3a25fa8751d57af",
     "LICENSE": "03bf0ffafa15f09eed05e41b5108bf92e9372b6156d33604a70dd34994a13acb",
