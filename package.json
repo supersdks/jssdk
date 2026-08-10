@@ -1,0 +1,71 @@
+{
+  "name": "@supersdk/jssdk",
+  "version": "1.0.0",
+  "description": "Environment-neutral SuperSDK runtime for Web and Hybrid applications",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "./dist/global.js",
+    "./dist/global.cjs",
+    "./dist/supersdk.js"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./global": {
+      "types": "./dist/global.d.ts",
+      "import": "./dist/global.js",
+      "require": "./dist/global.cjs"
+    },
+    "./supersdk.js": "./dist/supersdk.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && node --test tests/analytics-flush.test.mjs tests/analytics-params.test.mjs tests/analytics-persistence.test.mjs tests/analytics-queue.test.mjs tests/consent-migration.test.mjs tests/runtime.test.mjs tests/settings-cache.test.mjs tests/settings-contract.test.mjs tests/settings-errors.test.mjs tests/settings-security.test.mjs && node supersdk.test.cjs",
+    "test:browser": "npm run build && node --test tests/browser.e2e.test.mjs",
+    "test:pack": "npm run build && node --test tests/public-entry-smoke.test.mjs tests/public-export-gate.test.mjs tests/public-pack-clean-install.test.mjs tests/release-provenance.e2e.test.mjs",
+    "test:public": "npm run build && node --test tests/public-docs-smoke.test.mjs",
+    "verify:public-tree": "node scripts/verify-public-tree.mjs",
+    "verify:release": "node scripts/verify-release.mjs --candidate",
+    "verify": "npm run verify:public-tree && npm run test && npm run test:browser && npm run test:pack && npm run test:public && npm run verify:public-tree"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/supersdks/jssdk.git"
+  },
+  "homepage": "https://github.com/supersdks/jssdk#readme",
+  "bugs": {
+    "url": "https://github.com/supersdks/jssdk/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "keywords": [
+    "supersdk",
+    "jsbridge",
+    "analytics",
+    "settings",
+    "hybrid"
+  ],
+  "devDependencies": {
+    "esbuild": "^0.25.9",
+    "playwright-core": "^1.55.0",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,35 @@
+name: publish
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install --global npm@12.0.1
+      - run: test "$(npm --version)" = "12.0.1"
+      - id: release
+        run: |
+          version="$(node -p \"require('./package.json').version\")"
+          tag="$(node scripts/release-channel.mjs --version "$version")"
+          node scripts/release-channel.mjs --version "$version" --tag "$tag"
+          test "v$version" = "$GITHUB_REF_NAME"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - run: npm ci
+      - run: npx playwright-core install --with-deps chromium
+      - run: npm run verify:public-tree
+      - run: npm run verify
+      - run: npm publish --access public --provenance --tag "${{ steps.release.outputs.tag }}"
