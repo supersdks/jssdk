@@ -29,7 +29,9 @@ export async function verifyCandidate({ consumers = false } = {}) {
 export async function verifyPublished() {
   const packageJson = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8'));
   const tag = `v${packageJson.version}`;
-  const registry = JSON.parse(execFileSync('npm', ['view', `${packageJson.name}@${packageJson.version}`, '--json'], { encoding: 'utf8' }));
+  const registry = normalizeRegistryRecord(JSON.parse(execFileSync(
+    'npm', ['view', `${packageJson.name}@${packageJson.version}`, '--json'], { encoding: 'utf8' }
+  )));
   if (!registry?.dist?.integrity) throw new Error('PUBLISHED_INTEGRITY_MISSING');
   const temporary = await mkdtemp(resolve(tmpdir(), 'supersdk-public-tag-'));
   const checkout = resolve(temporary, 'jssdk');
@@ -44,6 +46,15 @@ export async function verifyPublished() {
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }
+}
+
+export function normalizeRegistryRecord(value) {
+  if (Array.isArray(value)) {
+    if (value.length !== 1) throw new Error('PUBLISHED_RECORD_AMBIGUOUS');
+    return value[0];
+  }
+  if (!value || typeof value !== 'object') throw new Error('PUBLISHED_RECORD_INVALID');
+  return value;
 }
 
 function npmPackRecord(cwd) {
