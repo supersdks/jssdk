@@ -14,7 +14,7 @@ test('npm_pack_contains_only_declared_public_files_and_no_sourcemap', async () =
   assert.deepEqual(files, [...TARBALL_FILES]);
   assert.equal(record.entryCount, TARBALL_FILES.length);
   assert.equal(record.name, '@supersdk/jssdk');
-  assert.equal(record.version, '1.0.0');
+  assert.equal(record.version, JSON.parse(await readFile(resolve(import.meta.dirname, '..', 'package.json'), 'utf8')).version);
   assert.ok(record.integrity.startsWith('sha512-'));
   assert.equal(files.some((file) => file.endsWith('.map')), false);
   assert.equal(files.some((file) => /(?:src|tests|scripts|android|ios|server|private)/i.test(file)), false);
@@ -23,7 +23,8 @@ test('npm_pack_contains_only_declared_public_files_and_no_sourcemap', async () =
   assert.equal(manifest.version, record.version);
   assert.deepEqual(Object.keys(manifest.files).sort(), [
     'global.cjs', 'global.d.ts', 'global.js', 'index.bundle.cjs', 'index.cjs',
-    'index.d.ts', 'index.js', 'supersdk.js'
+    'index.d.ts', 'index.js', 'mock.cjs', 'mock.d.ts', 'mock.js', 'monitoring-contract.d.ts', 'protocol.cjs',
+    'protocol.d.ts', 'protocol.js', 'supersdk.js'
   ]);
   assert.ok(Object.values(manifest.files).every((size) => Number.isInteger(size) && size > 0));
 });

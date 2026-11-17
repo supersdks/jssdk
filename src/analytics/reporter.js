@@ -1,10 +1,14 @@
 import { sdkError } from '../core/errors.js';
 import { cloneJSON, createUUID, isPlainObject, joinApiUrl, utf8Bytes } from '../core/utils.js';
+import { readJsonWithSuEnc } from '../suenc/codec.js';
 
 const RESERVED_EVENT_KEYS = new Set([
   'host_spid', 'host_aid', 'spid', 'env', 'platform', 'platform_id', 'device_id',
-  'evt_unique_id', 'source', 'os_type'
+  'evt_unique_id', 'source', 'os_type', 'exp_vids'
 ]);
+// SDK-owned event params (never caller-supplied): written onto the event when it is created,
+// applied after the reserved-key filter. `exp_vids` = exposed experiment vids at creation time.
+const SDK_EVENT_PARAM_KEYS = new Set(['source', 'exp_vids']);
 
 export function createReporter({
   target, getConfig, fetchImpl, diagnostics, outbox, consent, gate,
@@ -16,13 +20,16 @@ export function createReporter({
   let timer = null;
   let lifecycleBound = false;
   let lastOutcome = null;
+  const busyListeners = new Set();
+  let outboxBusyUnsubscribe = null;
+  const notifyBusy = () => { const value = isBusy(); for (const listener of [...busyListeners]) { try { listener(value); } catch (_) { diagnostics.emit('error', { category: 'monitoring_busy_observer', code: 'CALLBACK_ERROR' }); } } };
 
   consent.setAbortFlush(() => {
     activeController?.abort();
     activeController = null;
   });
 
-  async function reportEvent(eventName, params = {}) {
+  async function reportEvent(eventName, params = {}, internal = null) {
     const config = requireConfig(getConfig());
     if (consent.get() !== 'granted') throw sdkError('CONSENT_DENIED');
     if (typeof eventName !== 'string' || !eventName.trim() || eventName.length > 128) {
@@ -43,6 +50,8 @@ export function createReporter({
       createdAtMs: now(),
       nextAttemptAtMs: now()
     };
+    const sdkParams = sanitizeSdkParams(internal?.sdkParams);
+    if (sdkParams) event.sdkParams = sdkParams;
     if (utf8Bytes(event) > config.analytics.maxEventBytes) throw sdkError('PAYLOAD_TOO_LARGE');
 
     return gate.run(async () => {
@@ -61,7 +70,8 @@ export function createReporter({
 
   async function flush(options = {}) {
     if (flushPromise) return flushPromise;
-    flushPromise = doFlush(options).finally(() => { flushPromise = null; });
+    flushPromise = doFlush(options).finally(() => { flushPromise = null; notifyBusy(); });
+    notifyBusy();
     return flushPromise;
   }
 
@@ -134,7 +144,8 @@ export function createReporter({
           keepalive
         });
         let body = null;
-        try { body = await response.json(); } catch (_) { /* classified below */ }
+        // suenc 解码失败时 body 保持 null，落到下方 PROTOCOL_MISMATCH 重试分支——绝不读明文
+        try { body = await readJsonWithSuEnc(response); } catch (_) { /* classified below */ }
         if (response.status >= 200 && response.status < 300) {
           if (response.status === 207) {
             return { kind: 'partial', code: isPlainObject(body) ? (body.code || 'MULTI_STATUS') : 'PROTOCOL_MISMATCH', body };
@@ -193,12 +204,27 @@ export function createReporter({
     }
   }
 
+  function isBusy() { return !outbox.isHydrated?.() || outbox.size() > 0 || Boolean(flushPromise); }
+  const monitoringBusy = Object.freeze({
+    isBusy,
+    ensureHydrated: () => { const result = outbox.ensureHydrated?.(); notifyBusy(); return result; },
+    subscribeBusy(listener) {
+      if (!outboxBusyUnsubscribe) outboxBusyUnsubscribe = outbox.subscribeState?.(notifyBusy) || null;
+      busyListeners.add(listener); listener(isBusy());
+      return () => {
+        busyListeners.delete(listener);
+        if (!busyListeners.size) { outboxBusyUnsubscribe?.(); outboxBusyUnsubscribe = null; }
+      };
+    }
+  });
+
   return Object.freeze({
     reportEvent,
     flush,
     addEventCommonParam,
     addEventCommonParams,
     ensureActiveFlush,
+    monitoringBusy,
     getDeliveryState: () => Object.freeze({
       consent: consent.get(),
       pending: outbox.size(),
@@ -222,10 +248,24 @@ function buildPayload(config, batch, commonParams, deviceId) {
       const eventParam = {};
       for (const [key, value] of commonParams) if (!RESERVED_EVENT_KEYS.has(key)) eventParam[key] = value;
       for (const [key, value] of Object.entries(event.params)) if (!RESERVED_EVENT_KEYS.has(key)) eventParam[key] = value;
+      if (isPlainObject(event.sdkParams)) {
+        for (const [key, value] of Object.entries(event.sdkParams)) {
+          if (SDK_EVENT_PARAM_KEYS.has(key) && typeof value === 'string' && value) eventParam[key] = value;
+        }
+      }
       eventParam.evt_unique_id = event.eventId;
       return { event_name: event.eventName, event_param: eventParam, client_ts_ms: event.clientTsMs };
     })
   };
+}
+
+function sanitizeSdkParams(value) {
+  if (!isPlainObject(value)) return null;
+  const result = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (SDK_EVENT_PARAM_KEYS.has(key) && typeof item === 'string' && item) result[key] = item;
+  }
+  return Object.keys(result).length ? result : null;
 }
 
 function classifyResult(result, batch, config, now, random, diagnostics) {

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "wireSchema": "supersdk.monitoring.v1",
+  "categories": ["errors", "performance"],
+  "signals": ["js_exception", "resource_error", "unhandled_rejection", "web_vitals", "navigation", "jsb_operation", "container_navigation", "container_process"],
+  "platforms": ["web", "android", "ios"],
+  "states": ["started", "finished", "failed", "terminated", "restored", "unavailable"],
+  "outcomes": ["success", "cancelled", "timeout", "unsupported", "failure", "terminated", "unavailable"],
+  "latencyBuckets": ["lt10ms", "lt100ms", "lt1s", "lt10s", "gte10s", "unknown"],
+  "errorClasses": ["type_error", "range_error", "syntax_error", "network", "timeout", "unsupported", "native", "business", "process_terminated", "unknown"],
+  "locationClasses": ["inline", "first_party", "third_party", "native", "unknown"],
+  "resourceClasses": ["script", "style", "image", "font", "media", "other"],
+  "metrics": ["FCP", "LCP", "CLS", "INP", "navigation"],
+  "units": ["ms", "score"],
+  "availability": ["available", "unavailable"],
+  "contextFields": ["sdkVersion", "containerVersion", "webviewId", "runtimeSessionId", "runtimePageId", "containerSessionId", "containerPageId", "navigationId", "requestId"],
+  "summaryFields": ["api", "state", "outcome", "latencyBucket", "errorClass", "fingerprint", "locationClass", "resourceClass", "count", "measurements"],
+  "signalRules": {
+    "js_exception": [{"category":"errors","allowed":["errorClass","fingerprint","locationClass","count"],"required":["errorClass","locationClass","count"]}],
+    "resource_error": [{"category":"errors","allowed":["resourceClass","locationClass","count"],"required":["resourceClass","locationClass","count"]}],
+    "unhandled_rejection": [{"category":"errors","allowed":["errorClass","fingerprint","count"],"required":["errorClass","count"]}],
+    "web_vitals": [{"category":"performance","allowed":["count","measurements"],"required":["count","measurements"]}],
+    "navigation": [{"category":"performance","allowed":["count","measurements"],"required":["count","measurements"]}],
+    "jsb_operation": [
+      {"category":"performance","allowed":["api","outcome","latencyBucket","count"],"required":["api","outcome","latencyBucket","count"]},
+      {"category":"errors","allowed":["api","outcome","latencyBucket","errorClass","count"],"required":["api","outcome","latencyBucket","errorClass","count"]}
+    ],
+    "container_navigation": [
+      {"category":"performance","allowed":["state","outcome","latencyBucket","count"],"required":["state","outcome","latencyBucket","count"]},
+      {"category":"errors","allowed":["state","outcome","errorClass","locationClass","count"],"required":["state","outcome","errorClass","locationClass","count"]}
+    ],
+    "container_process": [{"category":"errors","allowed":["state","outcome","errorClass","count"],"required":["state","outcome","errorClass","count"]}]
+  },
+  "limits": {
+    "safeStringBytes": 64,
+    "idBytes": 80,
+    "measurements": 5,
+    "count": 2147483647,
+    "sequence": 2147483647
+  }
+}

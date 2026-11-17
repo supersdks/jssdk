@@ -6,7 +6,7 @@ const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[
 export function releaseChannel(version) {
   const match = typeof version === 'string' ? SEMVER.exec(version) : null;
   if (!match) throw new Error(`invalid semver version: ${version}`);
-  return match[4] ? 'next' : 'latest';
+  return match[4] ? 'next' : 'candidate';
 }
 
 export function assertReleaseChannel(version, tag) {

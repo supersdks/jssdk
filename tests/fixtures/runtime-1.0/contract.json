@@ -1,0 +1,28 @@
+{
+  "schema": "supersdk.jssdk.runtime-fixture.v1",
+  "source": {
+    "package": "@supersdk/jssdk",
+    "version": "1.0.0",
+    "repositoryCommit": "4591a232",
+    "artifact": "dist/supersdk.js",
+    "encoding": "gzip+base64",
+    "sha256": "0ac1aba822a9f680130e590319d1e06c6590c8a24e2f10bdc03071c905f37a3f",
+    "bytes": 49005
+  },
+  "inventory": { "directReferences": 59, "uniqueNativeMembers": 51 },
+  "traces": [
+    { "api": "share", "nativeName": "share", "args": ["content"], "return": "undefined", "timing": "sync" },
+    { "api": "openPage", "nativeName": "openPage", "args": ["https://example.invalid/", "{\"showTitleBar\":false}"], "return": "undefined", "timing": "sync" },
+    { "api": "getEnv", "nativeName": "getEnvAsync", "args": ["$callback"], "return": "Promise", "timing": "callback" },
+    { "api": "fileExists", "nativeName": "fileExists", "args": ["safe/file", "$callback"], "return": "Promise", "timing": "callback" },
+    { "api": "readFile", "nativeName": "readFile", "args": ["safe/file", "$callback"], "return": "Promise", "timing": "callback" },
+    { "api": "getFileMd5", "nativeName": "getFileMd5", "args": ["safe/file", "$callback"], "return": "Promise", "timing": "callback" },
+    { "api": "downloadFile", "nativeName": "downloadFile", "args": ["$callback", "https://example.invalid/file", "{}", "safe/file"], "return": "cancel function", "timing": "sync", "progress": ["START", "PROGRESS", "SUCCESS"], "cancelNativeName": "cancelDownload" },
+    { "api": "onForeground", "eventType": "SYSTEM", "eventKey": "onEnterForeground", "return": "unsubscribe function", "timing": "sync" }
+  ],
+  "runtimeResults": {
+    "fileExists": { "exists": true, "isFile": true, "isDirectory": false },
+    "readFile": { "content": "text" },
+    "getFileMd5": { "md5": "abc" }
+  }
+}

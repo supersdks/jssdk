@@ -11,4 +11,5 @@ export function installGlobal(target = defaultTarget) {
 }
 
 export { createSuperSDK, SuperSDKError, SDK_VERSION };
+export { MONITORING_CONTRACT_SHA256, MONITORING_GOLDEN_VECTORS, MONITORING_PROTOCOL, parseContainerCorrelation, validateMonitoringEnvelope } from './monitoring/generated-contract.js';
 export default SuperSDK;

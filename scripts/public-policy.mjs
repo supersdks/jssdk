@@ -3,19 +3,30 @@ import { readFile, readdir, lstat } from 'node:fs/promises';
 import { relative, resolve, sep } from 'node:path';
 
 export const PUBLIC_ROOT_FILES = Object.freeze([
-  'CHANGELOG.md', 'LICENSE', 'README.md', 'package-lock.json', 'package.json',
+  'CHANGELOG.md', 'JSBridge.md', 'LICENSE', 'README.md', 'package-lock.json', 'package.json',
   'supersdk.test.cjs'
 ]);
 
-export const PUBLIC_SOURCE_DIRECTORIES = Object.freeze(['src', 'tests', 'types']);
+export const PUBLIC_SOURCE_DIRECTORIES = Object.freeze(['protocol', 'src', 'tests', 'types']);
+export const PRIVATE_ONLY_SOURCE_FILES = Object.freeze(new Set([
+  'tests/jsb-workflow.test.mjs',
+  'tests/native-contract.test.mjs',
+  'tests/monitoring-native-contract.e2e.test.mjs',
+  'tests/monitoring-privacy.test.mjs',
+  'tests/push-docs.test.mjs',
+  'tests/fixtures/monitoring-v1-negative.json'
+]));
 
 export const PUBLIC_SCRIPT_FILES = Object.freeze([
-  'scripts/build.mjs', 'scripts/export-public.mjs', 'scripts/public-policy.mjs', 'scripts/release-channel.mjs',
+  'scripts/build.mjs', 'scripts/export-public.mjs', 'scripts/generate-bridge-contract.mjs',
+  'scripts/generate-monitoring-contract.mjs', 'scripts/generate-suenc-contract.mjs',
+  'scripts/public-policy.mjs', 'scripts/release-channel.mjs', 'scripts/verify-native-attestation.mjs',
   'scripts/verify-public-tree.mjs', 'scripts/verify-release.mjs'
 ]);
 
 export const TARBALL_FILES = Object.freeze([
   'CHANGELOG.md',
+  'JSBridge.md',
   'LICENSE',
   'README.md',
   'dist/global.cjs',
@@ -26,8 +37,24 @@ export const TARBALL_FILES = Object.freeze([
   'dist/index.d.ts',
   'dist/index.js',
   'dist/manifest.json',
+  'dist/mock.cjs',
+  'dist/mock.d.ts',
+  'dist/mock.js',
+  'dist/monitoring-contract.d.ts',
+  'dist/protocol.cjs',
+  'dist/protocol.d.ts',
+  'dist/protocol.js',
   'dist/supersdk.js',
-  'package.json'
+  'package.json',
+  'protocol/experiment-v1-golden.json',
+  'protocol/experiment-v1.json',
+  'protocol/golden-vectors.json',
+  'protocol/monitoring-v1-golden.json',
+  'protocol/monitoring-v1.json',
+  'protocol/push-v1.json',
+  'protocol/suenc-v1-golden.json',
+  'protocol/suenc-v1.json',
+  'protocol/v1.json'
 ]);
 
 const FORBIDDEN_PATH_PARTS = [
@@ -134,11 +161,13 @@ function isAllowedPublicFile(file, allowGeneratedProvenance) {
   if (PUBLIC_ROOT_FILES.includes(file)) return true;
   if (PUBLIC_SCRIPT_FILES.includes(file)) return true;
   if (file === '.gitignore' || file === 'SECURITY.md') return true;
-  if (file === '.github/workflows/ci.yml' || file === '.github/workflows/publish.yml') return true;
+  if (file === '.github/workflows/ci.yml' || file === '.github/workflows/publish.yml' || file === '.github/workflows/promote.yml') return true;
   if (file === 'PUBLIC_PROVENANCE.json') return allowGeneratedProvenance;
   if (file.startsWith('src/')) return file.endsWith('.js');
+  if (file.startsWith('protocol/')) return file.endsWith('.json');
   if (file.startsWith('types/')) return file.endsWith('.d.ts');
-  if (file.startsWith('tests/')) return file.endsWith('.test.mjs') || file === 'tests/helpers.mjs';
+  if (file.startsWith('tests/')) return file.endsWith('.test.mjs') || file === 'tests/helpers.mjs' ||
+    /^tests\/fixtures\/runtime-1\.0\/(?:contract\.json|supersdk-1\.0\.0\.js\.gz\.base64)$/.test(file);
   return false;
 }
 

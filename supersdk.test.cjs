@@ -77,7 +77,16 @@ let fetchCalls = [];
 let fetchQueue = [];
 let fetchResponse = { ok: true, status: 200 };
 let fetchShouldThrow = false;
+let experimentAssignCalls = [];
 global.fetch = function(url, options) {
+  // init / consent changes also fetch experiment assignments (JSSDK 2.5.0 · WS-12-S1). Those
+  // requests are answered here so they never consume the queued reportEvent responses below.
+  if (String(url).indexOf('/v2/experiments/assign') !== -1) {
+    experimentAssignCalls.push({ url: url, options: options });
+    return Promise.resolve({ ok: true, status: 200, headers: { get: function() { return null; } },
+      text: function() { return Promise.resolve(JSON.stringify({ code: 'SUCCESS', data: { rules_version: 1, assignments: [], live_vids: [] } })); },
+      json: function() { return Promise.resolve({ code: 'SUCCESS', data: { rules_version: 1, assignments: [], live_vids: [] } }); } });
+  }
   lastFetchArgs = { url: url, options: options };
   fetchCalls.push(lastFetchArgs);
   if (fetchQueue.length > 0) {
@@ -586,18 +595,56 @@ async function runTests() {
       'T-005 (AC-4): SuperSDK.' + k + ' is undefined (legacy API removed)');
   });
 
-  // TC-3 (F038 AC-2) · namespace 恰 4 个 method · 无 createAndPay / queryOrder
+  // TC-3 · namespace 含统一支付 + eligible subscription offer 查询
   assert(typeof SDK.pay === 'object' && SDK.pay !== null, 'TC-3: SuperSDK.pay is object');
   var payKeys = Object.keys(SDK.pay).sort();
-  var expectedKeys = ['getProviders', 'purchase', 'registerProvider', 'restorePurchases'].sort();
+  var expectedKeys = ['getProviders', 'purchase', 'querySubscriptionOffers',
+    'registerProvider', 'restorePurchases'].sort();
   assert(JSON.stringify(payKeys) === JSON.stringify(expectedKeys),
-    'TC-3: SuperSDK.pay namespace exposes exactly 4 methods · got [' + payKeys.join(',') + ']');
+    'TC-3: SuperSDK.pay namespace exposes expected methods · got [' + payKeys.join(',') + ']');
   expectedKeys.forEach(function(k) {
     assert(typeof SDK.pay[k] === 'function', 'TC-3: SuperSDK.pay.' + k + ' is function');
   });
   // TC-3 · v0.3 不新增公共方法(无 createAndPay · 无 queryOrder)
   assert(SDK.pay.createAndPay === undefined, 'TC-3 (F038 AC-2): SuperSDK.pay.createAndPay is undefined');
   assert(SDK.pay.queryOrder === undefined, 'TC-3 (F038 AC-2): SuperSDK.pay.queryOrder is undefined');
+
+  // Eligible offers:Native 只负责 Google Play 当前账号可买集合；JSSDK 再做无 token 白名单。
+  var offerQueryArgs = null;
+  global.appbridge = {
+    querySubscriptionOffers: function(provider, productIdsJson, callbackId) {
+      offerQueryArgs = { provider: provider, productIdsJson: productIdsJson };
+      setTimeout(function() {
+        global.JSBridge.subscribeHandler('ASYNC_CALLBACK', callbackId, {
+          code: 'SUCCESS',
+          data: {
+            offers: [{
+              productId: 'matrixvplan01', basePlanId: 'weekly01', offerId: null,
+              offerTags: [], title: 'Go VPN', description: 'VPN subscription',
+              pricingPhases: [{
+                formattedPrice: 'US$2.69', currencyCode: 'USD', priceAmountMicros: 2690000,
+                billingPeriod: 'P1W', billingCycleCount: 0, recurrenceMode: 1,
+                offerToken: 'nested-secret'
+              }],
+              offerToken: 'must-not-leak'
+            }]
+          }
+        });
+      }, 0);
+    }
+  };
+  var offers = await SDK.pay.querySubscriptionOffers({
+    provider: 'google_play', productIds: ['matrixvplan01']
+  });
+  assert(offerQueryArgs && offerQueryArgs.provider === 'google_play',
+    'querySubscriptionOffers routes provider');
+  assert(offerQueryArgs && offerQueryArgs.productIdsJson === '["matrixvplan01"]',
+    'querySubscriptionOffers serializes productIds');
+  assert(offers.length === 1 && offers[0].basePlanId === 'weekly01' && offers[0].offerId === null,
+    'querySubscriptionOffers resolves structured eligible offer');
+  assert(offers[0].offerToken === undefined && offers[0].pricingPhases[0].offerToken === undefined,
+    'querySubscriptionOffers never exposes offerToken');
+  delete global.appbridge;
 
   // T-006 + T-017 (AC-5) · invalid payConfig + err.detail 字段
   //   v0.3 哑管道:SDK 仅校验 payConfig/payParams 是对象 · 不再校验 productId(那是 provider 的事)
@@ -611,7 +658,13 @@ async function runTests() {
     { input: { provider: 'x' },    detailMatch: 'payParams must be object' },
     { input: { payParams: 'x' },   detailMatch: 'payParams must be object' },
     { input: { payParams: null },  detailMatch: 'payParams must be object' },
-    { input: { payParams: [] },    detailMatch: 'payParams must be object' }
+    { input: { payParams: [] },    detailMatch: 'payParams must be object' },
+    // BUG-SDK-B261028085322 #1 · inline createOrder 无配套 inline pay = 误用 → 不再静默丢弃
+    { input: { payParams: {}, createOrder: function () { return {}; } },
+      detailMatch: 'inline createOrder requires an inline pay function' },
+    // 事故原形:指定 provider + 传 inline createOrder + 无 pay(此前 createOrder 被静默透传丢弃)
+    { input: { provider: 'google_play', payParams: {}, createOrder: function () { return {}; } },
+      detailMatch: 'inline createOrder requires an inline pay function' }
   ];
   for (var i = 0; i < invalidInputs.length; i++) {
     var tc = invalidInputs[i];
@@ -627,6 +680,20 @@ async function runTests() {
       ') rejects INVALID_PARAMS with detail "' + tc.detailMatch + '" · got ' +
       (caught ? caught.message + ' / detail=' + caught.detail : 'no error'));
   }
+
+  // BUG-SDK-B261028085322 #1 · 正向回归:inline createOrder + inline pay(两方法都内联)照常走 inline JS provider
+  var inlineCoArg = null, inlinePayArg = null;
+  var inlineResult = await SDK.pay.purchase({
+    payParams: { productId: 'sku_inline' },
+    createOrder: function (p) { inlineCoArg = p; return { orderToken: 'ot_inline', sku: p.productId }; },
+    pay: function (json) { inlinePayArg = json; return Promise.resolve({ status: 'finished', orderToken: json.orderToken }); }
+  });
+  assert(inlineCoArg && inlineCoArg.productId === 'sku_inline',
+    'BUG#1: inline createOrder still invoked with payParams · got ' + JSON.stringify(inlineCoArg));
+  assert(inlinePayArg && inlinePayArg.orderToken === 'ot_inline',
+    'BUG#1: inline pay receives createOrder json · got ' + JSON.stringify(inlinePayArg));
+  assert(inlineResult && inlineResult.status === 'finished',
+    'BUG#1: inline createOrder+pay resolves three-state · got ' + JSON.stringify(inlineResult));
 
   // T-008 (AC-5) · 多 provider + 不传 provider → PROVIDER_REQUIRED
   // 先 register 一个 JS provider(v0.3:含 pay)· mock appbridge 返回多个 native providers
@@ -1000,6 +1067,79 @@ async function runTests() {
     'has not been initialized',
     'TC-024/TC-025: reportEvent without init rejects'
   );
+
+  // =============== Section 11: submitFeedback (CA-F260916-user-feedback) ===============
+  console.log('\n=== submitFeedback Tests ===');
+
+  // In-app: JSB `submitFeedback(callbackId, paramsJson)` carries the normalized camelCase params;
+  // Native fills spid/env/device/versions itself and answers { feedbackId }.
+  var feedbackBridgeArgs = null;
+  global.appbridge = {
+    submitFeedback: function(callbackId, paramsJson) {
+      feedbackBridgeArgs = { callbackId: callbackId, paramsJson: paramsJson };
+      setTimeout(function() {
+        global.JSBridge.subscribeHandler('ASYNC_CALLBACK', callbackId, {
+          code: 'SUCCESS',
+          data: { feedbackId: 42 }
+        });
+      }, 0);
+    }
+  };
+  var feedbackReceipt = await SDK.submitFeedback({
+    scene: 'settings', subScene: 'about', title: ' Crash on open ', content: 'it crashes',
+    userId: 'u_1', extra: { page: 'home' }
+  });
+  assert(feedbackReceipt && feedbackReceipt.feedbackId === 42,
+    'FB-1: submitFeedback resolves { feedbackId } from the native callback');
+  assert(feedbackBridgeArgs && typeof feedbackBridgeArgs.callbackId === 'string' && feedbackBridgeArgs.callbackId.length > 0,
+    'FB-1: submitFeedback passes a callbackId first');
+  var feedbackWire = JSON.parse(feedbackBridgeArgs.paramsJson);
+  assert(JSON.stringify(feedbackWire) === JSON.stringify({
+    scene: 'settings', subScene: 'about', title: 'Crash on open', content: 'it crashes',
+    userId: 'u_1', extra: { page: 'home' }
+  }), 'FB-1: submitFeedback sends trimmed camelCase params as JSON · got ' + feedbackBridgeArgs.paramsJson);
+
+  // Native failure codes are surfaced as Error(code) + detail (same shape as pay).
+  global.appbridge.submitFeedback = function(callbackId) {
+    setTimeout(function() {
+      global.JSBridge.subscribeHandler('ASYNC_CALLBACK', callbackId, {
+        code: 'RATE_LIMITED', message: 'rate limit exceeded'
+      });
+    }, 0);
+  };
+  var feedbackCaught = null;
+  try { await SDK.submitFeedback({ scene: 's', title: 't', content: 'c' }); }
+  catch (e) { feedbackCaught = e; }
+  assert(feedbackCaught && feedbackCaught.message === 'RATE_LIMITED' && feedbackCaught.detail === 'rate limit exceeded',
+    'FB-2: native failure code is rejected as Error(code) with detail · got ' + (feedbackCaught && feedbackCaught.message));
+
+  // Local validation rejects INVALID_PARAMS before touching the bridge.
+  var feedbackBridgeCalls = 0;
+  global.appbridge.submitFeedback = function() { feedbackBridgeCalls += 1; };
+  var feedbackInvalid = [
+    { input: undefined, detailMatch: 'params must be a plain object' },
+    { input: { title: 't', content: 'c' }, detailMatch: 'scene must be a string' },
+    { input: { scene: '', title: 't', content: 'c' }, detailMatch: 'scene is required' },
+    { input: { scene: 's', title: 't', content: '' }, detailMatch: 'content is required' },
+    { input: { scene: 's', title: 't', content: 'c', extra: [] }, detailMatch: 'extra must be a plain object' }
+  ];
+  for (var fi = 0; fi < feedbackInvalid.length; fi++) {
+    var ftc = feedbackInvalid[fi];
+    var fCaught = null;
+    try { await SDK.submitFeedback(ftc.input); } catch (e) { fCaught = e; }
+    assert(fCaught && fCaught.message === 'INVALID_PARAMS' && String(fCaught.detail).indexOf(ftc.detailMatch) >= 0,
+      'FB-3: submitFeedback rejects INVALID_PARAMS "' + ftc.detailMatch + '" · got ' +
+      (fCaught ? fCaught.message + ' / detail=' + fCaught.detail : 'no error'));
+  }
+  assert(feedbackBridgeCalls === 0, 'FB-3: invalid params never reach the bridge');
+
+  // Old native without the member → SDK_TOO_OLD (no throw, no hang).
+  delete global.appbridge.submitFeedback;
+  var feedbackOld = null;
+  try { await SDK.submitFeedback({ scene: 's', title: 't', content: 'c' }); } catch (e) { feedbackOld = e; }
+  assert(feedbackOld && feedbackOld.message === 'SDK_TOO_OLD',
+    'FB-4: missing native member rejects SDK_TOO_OLD · got ' + (feedbackOld && feedbackOld.message));
+  delete global.appbridge;
 
   // =============== Summary ===============
   console.log('\n================================');

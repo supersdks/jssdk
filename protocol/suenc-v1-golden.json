@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "codec": "b64t1",
+  "contractAlphabetSha256Note": "encode/decode 双向必须与本表逐字一致",
+  "encode": [
+    {
+      "name": "empty",
+      "plaintext": "",
+      "plaintextHex": "",
+      "encoded": ""
+    },
+    {
+      "name": "ascii-json",
+      "plaintext": "{\"code\":\"SUCCESS\",\"data\":{\"is_premium\":true}}",
+      "plaintextHex": "7b22636f6465223a2253554343455353222c2264617461223a7b2269735f7072656d69756d223a747275657d7d",
+      "encoded": "Pf8Ex4mMuE3Sqyb5oLbUqfuHugmjvtlSp2HS1YXGQr8Mx0MyxkuRvr8ysYyC"
+    },
+    {
+      "name": "chinese",
+      "plaintext": "{\"msg\":\"操作成功\",\"name\":\"超级应用\"}",
+      "plaintextHex": "7b226d7367223a22e6938de4bd9ce68890e58a9f222c226e616d65223a22e8b685e7baa7e5ba94e794a8227d",
+      "encoded": "Pf8zQ4QSpSdg7NJ7TsAgS85MSeOSdV8Wn0yMuE3SRd1/c9F2cxFqcck3u2L="
+    },
+    {
+      "name": "emoji",
+      "plaintext": "{\"emoji\":\"🎉🚀✨\",\"mixed\":\"中文abc🎉\"}",
+      "plaintextHex": "7b22656d6f6a69223a22f09f8e89f09f9a80e29ca8222c226d69786564223a22e4b8ade69687616263f09f8e89227d",
+      "encoded": "Pf8Mx0CF1kuRuTVGE32w2cFZNef3uSwSx0MNs0oSpSd7W6JgM3vjng+w2NR8u2L="
+    },
+    {
+      "name": "remainder-1byte",
+      "plaintext": "A",
+      "plaintextHex": "41",
+      "encoded": "oo=="
+    },
+    {
+      "name": "remainder-2bytes",
+      "plaintext": "AB",
+      "plaintextHex": "4142",
+      "encoded": "oqu="
+    },
+    {
+      "name": "remainder-3bytes",
+      "plaintext": "ABC",
+      "plaintextHex": "414243",
+      "encoded": "oq85"
+    },
+    {
+      "name": "json-nested-unicode",
+      "plaintext": "{\"a\":[\"中\",1,true,null],\"b\":{\"c\":\"🙂\"}}",
+      "plaintextHex": "7b2261223a5b22e4b8ad222c312c747275652c6e756c6c5d2c2262223a7b2263223a22f09f9982227d7d",
+      "encoded": "Pf8juEexuWkNKkuHakBLQ2bMdtcyxtBvdV8SuEe9ugaSpSdw2cgVu2yC"
+    }
+  ],
+  "whitespaceTolerant": [
+    {
+      "name": "newlines-and-spaces-are-stripped",
+      "encoded": "Pf8T\n1fuR\nvr8y\nsYL=\n",
+      "plaintext": "{\"ok\":true}"
+    }
+  ],
+  "decodeErrors": [
+    {
+      "name": "invalid-char",
+      "encoded": "ZZ*Z",
+      "error": "SUENC_DECODE_FAILED"
+    },
+    {
+      "name": "invalid-length",
+      "encoded": "ZZZZZ",
+      "error": "SUENC_DECODE_FAILED"
+    },
+    {
+      "name": "padding-in-middle",
+      "encoded": "ZZ=Z",
+      "error": "SUENC_DECODE_FAILED"
+    },
+    {
+      "name": "too-many-padding",
+      "encoded": "Z===",
+      "error": "SUENC_DECODE_FAILED"
+    },
+    {
+      "name": "invalid-utf8",
+      "encoded": "ii9C",
+      "error": "SUENC_INVALID_UTF8"
+    }
+  ],
+  "unknownCodec": {
+    "codec": "b64t9",
+    "error": "UNSUPPORTED_SUENC_CODEC"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "schema": "supersdk.experiment.contract",
+  "contract": 1,
+  "algo": {
+    "id": "b1",
+    "hash": "sha256",
+    "separator": ":",
+    "prefix_bytes": 4,
+    "byte_order": "big",
+    "buckets": 10000,
+    "definition": "u = be_u32(SHA-256(utf8(salt) || ':' || utf8(device_id))[0..4]); bucket = floor(u * 10000 / 2^32)"
+  },
+  "salt_pattern": "^[a-z0-9]{16}$",
+  "experiment_key_pattern": "^[a-z][a-z0-9_]{1,39}$",
+  "variant_key_pattern": "^[a-z][a-z0-9_]{0,19}$",
+  "namespace_pattern": "^[a-z][a-z0-9_]{1,31}$",
+  "default_namespace": "default",
+  "sides": ["client", "server"],
+  "default_side": "client",
+  "limits": {
+    "variants_min": 2,
+    "variants_max": 10,
+    "payload_max_bytes": 8192,
+    "active_experiments_per_env": 2000,
+    "active_experiments_per_namespace": 200,
+    "namespaces_per_request": 10,
+    "assign_body_max_bytes": 16384,
+    "custom_attributes_max": 20,
+    "exp_vids_max": 500,
+    "overrides_devices_per_env": 2000,
+    "overrides_per_device": 50,
+    "device_id_max_chars": 256,
+    "attribute_key_max_chars": 64,
+    "attribute_value_max_chars": 256,
+    "audience_conditions_max": 20
+  },
+  "stale_after_sec": 604800,
+  "reasons": ["alloc", "override", "rollout", "unknown", "paused", "no_subject", "audience", "traffic", "not_loaded", "no_result"],
+  "assignment_reasons": ["alloc", "override", "rollout"],
+  "audience": {
+    "attributes": ["platform", "app_version", "country", "language", "channel", "install_time"],
+    "custom_prefix": "attr.",
+    "ops": {
+      "platform": ["in"],
+      "app_version": [">=", "<", "="],
+      "country": ["in", "not_in"],
+      "language": ["in", "not_in"],
+      "channel": ["in", "not_in"],
+      "install_time": [">=", "<"],
+      "attr.*": ["in", "not_in"]
+    },
+    "rules": [
+      "All conditions must hold (AND). A missing attribute, or an attribute whose value is the empty string, makes its condition false (also for not_in).",
+      "in / not_in take an array of strings and compare exactly (no trim, no case folding).",
+      "app_version compares dot-separated decimal segments as integers, padding missing segments with 0; any non-numeric segment on either side makes the condition false.",
+      "install_time is a millisecond timestamp (JSON number or decimal string); the condition value is a JSON integer."
+    ]
+  },
+  "evaluation_order": [
+    "1 experiment exists in the rules for the requested namespaces, else unknown",
+    "2 status rolled_out -> rollout variant, reason rollout (never exposed)",
+    "3 status running, else paused",
+    "4 device_id non-empty, else no_subject",
+    "5 override list hit -> reason override",
+    "6 every audience condition holds, else audience",
+    "7 bucket(layer_salt, device_id) inside one of the experiment's [start,end) ranges, else traffic",
+    "8 bucket(run_salt, device_id) picks the variant by cumulative weight_bp, reason alloc"
+  ],
+  "exposure_event": "$exp_exposure",
+  "event_param": "exp_vids",
+  "header": "X-Super-AB-Vids",
+  "query_param": "super_ab_vids",
+  "assign": {
+    "ss_paths": ["/superapi/v2/experiments/assign", "/api/v2/experiments/assign"],
+    "ca_upstream_path": "/api/public/v2/experiments/assign",
+    "method": "POST",
+    "env_resolution": "body.env > header X-Super-API-ENV > prod",
+    "request_fields": ["spid", "env", "device_id", "namespaces", "side", "attributes", "known_version"],
+    "response_fields": ["rules_version", "not_modified", "stale_after_sec", "assignments", "live_vids", "emergency_stopped"],
+    "not_modified_fields": ["rules_version", "not_modified"],
+    "assignment_fields": ["key", "vid", "run", "version", "type", "namespace", "variant", "payload", "layer_key", "reason"],
+    "error_codes": ["INVALID_REQUEST", "SPID_REQUIRED", "NOT_FOUND", "TOO_MANY_REQUESTS"]
+  },
+  "console_error_codes": [
+    "EXP_VERSION_CONFLICT",
+    "EXP_KEY_DUPLICATE",
+    "EXP_NOT_FOUND",
+    "EXP_INVALID_STATE",
+    "EXP_FROZEN_FIELD",
+    "EXP_LIMIT_EXCEEDED",
+    "EXP_INVALID_ARGUMENT"
+  ]
+}

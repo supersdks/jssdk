@@ -31,6 +31,7 @@ jobs:
       - run: npm ci
       - run: npx playwright-core install --with-deps chromium
       - run: npm run verify:public-tree
+      - run: node scripts/verify-native-attestation.mjs --provenance PUBLIC_PROVENANCE.json
       - run: npm run verify
       - id: registry
         name: Verify an existing immutable version
@@ -45,3 +46,10 @@ jobs:
           fi
       - if: steps.registry.outputs.exists != 'true'
         run: npm publish --access public --provenance --tag "${{ steps.release.outputs.tag }}"
+      - name: Assert stable publication remains candidate-only
+        if: steps.release.outputs.tag == 'candidate'
+        run: |
+          package="$(node -p "require('./package.json').name")"
+          version="${{ steps.release.outputs.version }}"
+          test "$(npm view "$package" dist-tags.candidate)" = "$version"
+          test "$(npm view "$package" dist-tags.latest)" != "$version"

@@ -22,6 +22,9 @@ export function createOutbox({ getConfig, indexedDBLike, diagnostics, canPersist
   let activeNamespace = null;
   let ready = Promise.resolve();
   let opening = null;
+  let hydrated = !indexedDBLike;
+  const stateListeners = new Set();
+  const notify = () => { for (const listener of [...stateListeners]) { try { listener(); } catch (_) { diagnostics.emit('error', { category: 'outbox_observer', code: 'CALLBACK_ERROR' }); } } };
 
   function namespace() {
     const config = getConfig?.();
@@ -38,8 +41,10 @@ export function createOutbox({ getConfig, indexedDBLike, diagnostics, canPersist
       opening = null;
       ready = Promise.resolve();
       activeNamespace = nextNamespace;
+      hydrated = !indexedDBLike;
+      notify();
     }
-    if (!open || !persistent || !indexedDBLike || !canPersist() || !activeNamespace) return ready;
+    if (!open || !persistent || !indexedDBLike || !canPersist() || !activeNamespace) { hydrated = true; notify(); return ready; }
     if (store) return ready;
     if (!opening) {
       opening = hydrate(activeNamespace).finally(() => { opening = null; });
@@ -61,10 +66,14 @@ export function createOutbox({ getConfig, indexedDBLike, diagnostics, canPersist
       for (const event of existing.filter((item) => item.namespace === expectedNamespace).slice(-capacity)) {
         events.set(event.eventId, event);
       }
+      hydrated = true;
+      notify();
     } catch (_) {
       persistent = false;
       store = null;
       diagnostics.emit('warn', { category: 'outbox_storage', code: 'UNAVAILABLE', persistent: false });
+      hydrated = true;
+      notify();
     }
   }
 
@@ -77,6 +86,7 @@ export function createOutbox({ getConfig, indexedDBLike, diagnostics, canPersist
     const capacity = getConfig()?.analytics.queueCapacity || LIMITS.analytics.queueCapacity;
     if (!events.has(event.eventId) && events.size >= capacity) return false;
     events.set(event.eventId, persistedEvent);
+    notify();
     await persist('put', persistedEvent);
     return true;
   }
@@ -101,6 +111,7 @@ export function createOutbox({ getConfig, indexedDBLike, diagnostics, canPersist
   async function remove(ids) {
     await ensureReady({ open: false });
     for (const id of ids) events.delete(id);
+    notify();
     if (store) {
       try { await store.remove(ids); } catch (_) { disablePersistence(); }
     }
@@ -109,6 +120,7 @@ export function createOutbox({ getConfig, indexedDBLike, diagnostics, canPersist
   async function update(items) {
     await ensureReady({ open: false });
     for (const event of items) events.set(event.eventId, event);
+    notify();
     if (store) {
       try { await store.putMany(items); } catch (_) { disablePersistence(); }
     }
@@ -117,6 +129,7 @@ export function createOutbox({ getConfig, indexedDBLike, diagnostics, canPersist
   async function clear() {
     await ensureReady({ open: false });
     events.clear();
+    notify();
     if (store) {
       try {
         await store.clear();
@@ -149,7 +162,10 @@ export function createOutbox({ getConfig, indexedDBLike, diagnostics, canPersist
     size: () => events.size,
     has: (id) => events.has(id),
     snapshot: () => [...events.values()].map((event) => ({ ...event })),
-    isPersistent: () => persistent
+    isPersistent: () => persistent,
+    ensureHydrated: () => ensureReady(),
+    isHydrated: () => hydrated,
+    subscribeState(listener) { stateListeners.add(listener); return () => stateListeners.delete(listener); }
   });
 }
 

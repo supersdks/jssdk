@@ -1,0 +1,4 @@
+// TC T-013/T-017; ci_reason: high-cardinality resource ceiling before the Chromium timing gate.
+import test from 'node:test'; import assert from 'node:assert/strict';
+import { createMonitoringAggregator } from '../src/monitoring/aggregator.js';
+test('aggregation overflow collapses into one bounded other tuple',()=>{const a=createMonitoringAggregator({maxKeys:2,maxFingerprints:1});assert.equal(a.add({category:'errors',signal:'js_exception',errorClass:'type_error',locationClass:'inline'}),'admitted');assert.equal(a.add({category:'errors',signal:'js_exception',errorClass:'range_error',locationClass:'first_party'}),'other');for(let i=0;i<1000;i++)a.add({category:'errors',signal:'js_exception',errorClass:'unknown',locationClass:'unknown',fingerprint:String(i).padStart(64,'0')});assert.ok(a.snapshot().length<=2);});

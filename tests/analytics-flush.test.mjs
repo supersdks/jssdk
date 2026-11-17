@@ -6,7 +6,9 @@ import { createTarget, response } from './helpers.mjs';
 test('flush_handles_207_per_event_success_permanent_failure_and_retryable_failure_without_duplicate_successes', async function flush_handles_207_per_event_success_permanent_failure_and_retryable_failure_without_duplicate_successes() {
   const requests = [];
   let round = 0;
-  const target = createTarget(async (_url, options) => {
+  const target = createTarget(async (url, options) => {
+    // init() also fetches experiment assignments (WS-12-S1); this test only counts reportEvent batches.
+    if (url.includes('/v2/experiments/assign')) return response(200, { code: 'SUCCESS', data: { rules_version: 1, assignments: [], live_vids: [] } });
     const payload = JSON.parse(options.body);
     requests.push(payload);
     const ids = payload.events.map((event) => event.event_param.evt_unique_id);

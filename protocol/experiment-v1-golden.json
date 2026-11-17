@@ -1,0 +1,2338 @@
+{
+  "bucket": [
+    {
+      "bucket": 1387,
+      "device_id": "",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 6434,
+      "device_id": "",
+      "salt": "a1b2c3d4e5f6g7h8"
+    },
+    {
+      "bucket": 6166,
+      "device_id": "a",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 3657,
+      "device_id": "device-1",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 6139,
+      "device_id": "device-2",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 8860,
+      "device_id": "device-1",
+      "salt": "a1b2c3d4e5f6g7h8"
+    },
+    {
+      "bucket": 1645,
+      "device_id": "device-1",
+      "salt": "0000000000000000"
+    },
+    {
+      "bucket": 9950,
+      "device_id": "550e8400-e29b-41d4-a716-446655440000",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 2957,
+      "device_id": "550E8400-E29B-41D4-A716-446655440000",
+      "salt": "a1b2c3d4e5f6g7h8"
+    },
+    {
+      "bucket": 5749,
+      "device_id": " device-1 ",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 6373,
+      "device_id": "DEVICE-1",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 9990,
+      "device_id": "设备-甲",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 9851,
+      "device_id": "émoji-😀-id",
+      "salt": "a1b2c3d4e5f6g7h8"
+    },
+    {
+      "bucket": 2226,
+      "device_id": "Ωmega:δ",
+      "salt": "0000000000000000"
+    },
+    {
+      "bucket": 1455,
+      "device_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 3279,
+      "device_id": "long-01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789",
+      "salt": "a1b2c3d4e5f6g7h8"
+    },
+    {
+      "bucket": 484,
+      "device_id": "a:b",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 6956,
+      "device_id": "zzzzzzzzzzzzzzzz",
+      "salt": "a1b2c3d4e5f6g7h8"
+    },
+    {
+      "bucket": 6105,
+      "device_id": "device-1",
+      "salt": "zzzzzzzzzzzzzzzz"
+    },
+    {
+      "bucket": 5295,
+      "device_id": "android-8f14e45fceea167a",
+      "salt": "9z8y7x6w5v4u3t2s"
+    },
+    {
+      "bucket": 0,
+      "device_id": "edge0-9282",
+      "salt": "k3j9x0q2m5n8p1r4"
+    },
+    {
+      "bucket": 9999,
+      "device_id": "edge9999-6652",
+      "salt": "k3j9x0q2m5n8p1r4"
+    }
+  ],
+  "contract": 1,
+  "description": "Bucket vectors (salt + device_id -> bucket) and evaluation vectors (compiled rules + subject -> outcome). evaluate: for every key in expected, evaluate per design §3.2 restricted to subject.namespaces (a key outside them is 'unknown'). Values were produced by the Rust evaluator (services/super-console-main/src/modules/experiment/eval.rs) and cross-checked with an independent Python hashlib implementation.",
+  "evaluate": [
+    {
+      "expected": {
+        "paywall_price": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "control",
+          "vid": 10001
+        }
+      },
+      "name": "alloc: running, 100% traffic, 50/50",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "paywall_price",
+            "layer_key": "l_paywall_",
+            "layer_salt": "la00000000000001",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "control",
+                "payload": {
+                  "v": "control"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "low",
+                "payload": {
+                  "v": "low"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "device-alloc-1",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "paywall_price": {
+          "in": false,
+          "reason": "traffic"
+        }
+      },
+      "name": "traffic: layer bucket outside a 10% range",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "paywall_price",
+            "layer_key": "l_paywall_",
+            "layer_salt": "la00000000000001",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                1000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "control",
+                "payload": {
+                  "v": "control"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "low",
+                "payload": {
+                  "v": "low"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "trafficmiss-0",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "end_exclusive": {
+          "in": false,
+          "reason": "traffic"
+        },
+        "multi_range": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "b",
+          "vid": 10022
+        },
+        "start_inclusive": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "b",
+          "vid": 10002
+        }
+      },
+      "name": "range endpoints: layer bucket 2593 is in [2593,2594) and not in [0,2593)",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "start_inclusive",
+            "layer_key": "l_start_in",
+            "layer_salt": "lb00000000000002",
+            "namespace": "default",
+            "ranges": [
+              [
+                2593,
+                2594
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rb00000000000002",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "end_exclusive",
+            "layer_key": "l_end_excl",
+            "layer_salt": "lb00000000000002",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                2593
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "multi_range",
+            "layer_key": "l_multi_ra",
+            "layer_salt": "lb00000000000002",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                1
+              ],
+              [
+                2593,
+                2594
+              ],
+              [
+                9999,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10021,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10022,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "device-range-1",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "edge_low_in": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "b",
+          "vid": 10002
+        },
+        "edge_low_out": {
+          "in": false,
+          "reason": "traffic"
+        }
+      },
+      "name": "bucket edge 0: in [0,1), not in [1,10000)",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "edge_low_in",
+            "layer_key": "l_edge_low",
+            "layer_salt": "k3j9x0q2m5n8p1r4",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                1
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "edge_low_out",
+            "layer_key": "l_edge_low",
+            "layer_salt": "k3j9x0q2m5n8p1r4",
+            "namespace": "default",
+            "ranges": [
+              [
+                1,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rb00000000000002",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "edge0-9282",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "edge_high_in": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10001
+        },
+        "edge_high_out": {
+          "in": false,
+          "reason": "traffic"
+        }
+      },
+      "name": "bucket edge 9999: in [9999,10000), not in [0,9999)",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "edge_high_in",
+            "layer_key": "l_edge_hig",
+            "layer_salt": "k3j9x0q2m5n8p1r4",
+            "namespace": "default",
+            "ranges": [
+              [
+                9999,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "edge_high_out",
+            "layer_key": "l_edge_hig",
+            "layer_salt": "k3j9x0q2m5n8p1r4",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                9999
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rb00000000000002",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "edge9999-6652",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "boundary_next": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "second",
+          "vid": 10002
+        },
+        "boundary_prev": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "first",
+          "vid": 10011
+        }
+      },
+      "name": "weight boundary: run bucket 4304 == first weight -> second variant",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "boundary_next",
+            "layer_key": "l_boundary",
+            "layer_salt": "la00000000000001",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "first",
+                "payload": {
+                  "v": "first"
+                },
+                "vid": 10001,
+                "weight_bp": 4304
+              },
+              {
+                "key": "second",
+                "payload": {
+                  "v": "second"
+                },
+                "vid": 10002,
+                "weight_bp": 5696
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "boundary_prev",
+            "layer_key": "l_boundary",
+            "layer_salt": "lb00000000000002",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "first",
+                "payload": {
+                  "v": "first"
+                },
+                "vid": 10011,
+                "weight_bp": 4305
+              },
+              {
+                "key": "second",
+                "payload": {
+                  "v": "second"
+                },
+                "vid": 10012,
+                "weight_bp": 5695
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "device-weight-1",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "three_way": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "b",
+          "vid": 10002
+        }
+      },
+      "name": "three variants 20/30/50",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "three_way",
+            "layer_key": "l_three_wa",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 2000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 3000
+              },
+              {
+                "key": "c",
+                "payload": {
+                  "v": "c"
+                },
+                "vid": 10003,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "device-three-1",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "paused_exp": {
+          "in": false,
+          "reason": "paused"
+        },
+        "running_exp": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10011
+        }
+      },
+      "name": "paused: paused wins over an override hit (step 3 before step 5)",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "paused_exp",
+            "layer_key": "l_paused_e",
+            "layer_salt": "la00000000000001",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "paused",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "running_exp",
+            "layer_key": "l_running_",
+            "layer_salt": "lb00000000000002",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rb00000000000002",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ],
+        "overrides": {
+          "qa-device-1": {
+            "paused_exp": "b"
+          }
+        }
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "qa-device-1",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "paused_exp": {
+          "in": false,
+          "reason": "paused"
+        },
+        "running_exp": {
+          "in": false,
+          "reason": "no_subject"
+        }
+      },
+      "name": "no_subject: empty device_id on a running experiment; paused still reports paused",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "paused_exp",
+            "layer_key": "l_paused_e",
+            "layer_salt": "la00000000000001",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "paused",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "running_exp",
+            "layer_key": "l_running_",
+            "layer_salt": "lb00000000000002",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rb00000000000002",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ],
+        "overrides": {
+          "qa-device-1": {
+            "paused_exp": "b"
+          }
+        }
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "forced": {
+          "in": true,
+          "reason": "override",
+          "variant": "treat",
+          "vid": 10002
+        },
+        "stale_forced": {
+          "in": false,
+          "reason": "traffic"
+        }
+      },
+      "name": "override: beats audience and traffic; stale variant key is ignored",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "country",
+                "op": "in",
+                "value": [
+                  "JP"
+                ]
+              }
+            ],
+            "key": "forced",
+            "layer_key": "l_forced00",
+            "layer_salt": "la00000000000001",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                100
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "control",
+                "payload": {
+                  "v": "control"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "treat",
+                "payload": {
+                  "v": "treat"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "stale_forced",
+            "layer_key": "l_stale_fo",
+            "layer_salt": "la00000000000001",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                100
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rb00000000000002",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "control",
+                "payload": {
+                  "v": "control"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "treat",
+                "payload": {
+                  "v": "treat"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ],
+        "overrides": {
+          "ovr-0": {
+            "forced": "treat",
+            "stale_forced": "removed_variant"
+          }
+        }
+      },
+      "subject": {
+        "attributes": {
+          "country": "US"
+        },
+        "device_id": "ovr-0",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "aud_all_of": {
+          "in": false,
+          "reason": "audience"
+        },
+        "aud_channel_empty_not_in": {
+          "in": false,
+          "reason": "audience"
+        },
+        "aud_country_case": {
+          "in": false,
+          "reason": "audience"
+        },
+        "aud_country_not_in": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10061
+        },
+        "aud_custom_in": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10101
+        },
+        "aud_install_ge": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10111
+        },
+        "aud_install_lt": {
+          "in": false,
+          "reason": "audience"
+        },
+        "aud_missing_attr": {
+          "in": false,
+          "reason": "audience"
+        },
+        "aud_platform_in": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10001
+        },
+        "aud_platform_out": {
+          "in": false,
+          "reason": "audience"
+        },
+        "aud_ver_eq_pad": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10041
+        },
+        "aud_ver_ge_eq": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10021
+        },
+        "aud_ver_lt_10": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10051
+        },
+        "aud_ver_lt_eq": {
+          "in": false,
+          "reason": "audience"
+        }
+      },
+      "name": "audience: operators, app_version boundaries, missing / empty attributes",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "platform",
+                "op": "in",
+                "value": [
+                  "android",
+                  "ios"
+                ]
+              }
+            ],
+            "key": "aud_platform_in",
+            "layer_key": "l_aud_plat",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "platform",
+                "op": "in",
+                "value": [
+                  "web"
+                ]
+              }
+            ],
+            "key": "aud_platform_out",
+            "layer_key": "l_aud_plat",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "app_version",
+                "op": ">=",
+                "value": "2.3"
+              }
+            ],
+            "key": "aud_ver_ge_eq",
+            "layer_key": "l_aud_ver_",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10021,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10022,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "app_version",
+                "op": "<",
+                "value": "2.3"
+              }
+            ],
+            "key": "aud_ver_lt_eq",
+            "layer_key": "l_aud_ver_",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10031,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10032,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "app_version",
+                "op": "=",
+                "value": "2.3.0.0"
+              }
+            ],
+            "key": "aud_ver_eq_pad",
+            "layer_key": "l_aud_ver_",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10041,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10042,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "app_version",
+                "op": "<",
+                "value": "2.10"
+              }
+            ],
+            "key": "aud_ver_lt_10",
+            "layer_key": "l_aud_ver_",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10051,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10052,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "country",
+                "op": "not_in",
+                "value": [
+                  "CN",
+                  "RU"
+                ]
+              }
+            ],
+            "key": "aud_country_not_in",
+            "layer_key": "l_aud_coun",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10061,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10062,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "country",
+                "op": "in",
+                "value": [
+                  "us"
+                ]
+              }
+            ],
+            "key": "aud_country_case",
+            "layer_key": "l_aud_coun",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10071,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10072,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "channel",
+                "op": "not_in",
+                "value": [
+                  "gp"
+                ]
+              }
+            ],
+            "key": "aud_channel_empty_not_in",
+            "layer_key": "l_aud_chan",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10081,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10082,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "attr.tier",
+                "op": "not_in",
+                "value": [
+                  "gold"
+                ]
+              }
+            ],
+            "key": "aud_missing_attr",
+            "layer_key": "l_aud_miss",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10091,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10092,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "attr.vip",
+                "op": "in",
+                "value": [
+                  "1"
+                ]
+              }
+            ],
+            "key": "aud_custom_in",
+            "layer_key": "l_aud_cust",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10101,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10102,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "install_time",
+                "op": ">=",
+                "value": 1760000000000
+              }
+            ],
+            "key": "aud_install_ge",
+            "layer_key": "l_aud_inst",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10111,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10112,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "install_time",
+                "op": "<",
+                "value": 1760000000000
+              }
+            ],
+            "key": "aud_install_lt",
+            "layer_key": "l_aud_inst",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10121,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10122,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "platform",
+                "op": "in",
+                "value": [
+                  "android"
+                ]
+              },
+              {
+                "attr": "language",
+                "op": "in",
+                "value": [
+                  "fr"
+                ]
+              }
+            ],
+            "key": "aud_all_of",
+            "layer_key": "l_aud_all_",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10131,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10132,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {
+          "app_version": "2.3.0",
+          "attr.vip": "1",
+          "channel": "",
+          "country": "US",
+          "install_time": 1760000000000,
+          "language": "en",
+          "platform": "android"
+        },
+        "device_id": "device-aud-1",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "ver_ge": {
+          "in": false,
+          "reason": "audience"
+        },
+        "ver_lt": {
+          "in": false,
+          "reason": "audience"
+        }
+      },
+      "name": "audience: non-numeric app_version segment makes every version condition false",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "app_version",
+                "op": ">=",
+                "value": "1.0"
+              }
+            ],
+            "key": "ver_ge",
+            "layer_key": "l_ver_ge00",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "app_version",
+                "op": "<",
+                "value": "9.0"
+              }
+            ],
+            "key": "ver_lt",
+            "layer_key": "l_ver_lt00",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {
+          "app_version": "2.3-beta"
+        },
+        "device_id": "device-aud-2",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "needs_platform": {
+          "in": false,
+          "reason": "audience"
+        }
+      },
+      "name": "audience: attributes absent entirely",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [
+              {
+                "attr": "platform",
+                "op": "in",
+                "value": [
+                  "web"
+                ]
+              }
+            ],
+            "key": "needs_platform",
+            "layer_key": "l_needs_pl",
+            "layer_salt": "lc00000000000003",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rc00000000000003",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "device-aud-3",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "checkout_flow": {
+          "in": false,
+          "reason": "unknown"
+        },
+        "home_banner": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "b",
+          "vid": 10012
+        },
+        "never_created": {
+          "in": false,
+          "reason": "unknown"
+        }
+      },
+      "name": "unknown: key absent, and key outside the requested namespaces",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "checkout_flow",
+            "layer_key": "l_checkout",
+            "layer_salt": "la00000000000001",
+            "namespace": "shop",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "home_banner",
+            "layer_key": "l_home_ban",
+            "layer_salt": "lb00000000000002",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rb00000000000002",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "device-ns-1",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "checkout_flow": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "a",
+          "vid": 10001
+        },
+        "home_banner": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "b",
+          "vid": 10012
+        }
+      },
+      "name": "namespaces: requesting both namespaces sees both",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "checkout_flow",
+            "layer_key": "l_checkout",
+            "layer_salt": "la00000000000001",
+            "namespace": "shop",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          },
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "home_banner",
+            "layer_key": "l_home_ban",
+            "layer_salt": "lb00000000000002",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                10000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "rb00000000000002",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "a",
+                "payload": {
+                  "v": "a"
+                },
+                "vid": 10011,
+                "weight_bp": 5000
+              },
+              {
+                "key": "b",
+                "payload": {
+                  "v": "b"
+                },
+                "vid": 10012,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "device-ns-1",
+        "namespaces": [
+          "default",
+          "shop"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "old_paywall": {
+          "in": true,
+          "reason": "rollout",
+          "variant": "low",
+          "vid": 10002
+        }
+      },
+      "name": "rollout: rolled_out returns the winner even without a device_id",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "old_paywall",
+            "layer_key": "l_old_payw",
+            "layer_salt": "la00000000000001",
+            "namespace": "default",
+            "ranges": [],
+            "rollout_variant": "low",
+            "run": 1,
+            "salt": "ra00000000000001",
+            "status": "rolled_out",
+            "type": "client",
+            "variants": [
+              {
+                "key": "control",
+                "payload": {
+                  "v": "control"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "low",
+                "payload": {
+                  "v": "low"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "",
+        "namespaces": [
+          "default"
+        ]
+      }
+    },
+    {
+      "expected": {
+        "shared_salt_bug": {
+          "in": true,
+          "reason": "alloc",
+          "variant": "control",
+          "vid": 10001
+        }
+      },
+      "name": "anti-example: layer salt == run salt, 10% traffic -> every participant lands in the first variant (why salts must differ)",
+      "rules": {
+        "experiments": [
+          {
+            "algo": "b1",
+            "audience": [],
+            "key": "shared_salt_bug",
+            "layer_key": "l_shared_s",
+            "layer_salt": "samesalt00000000",
+            "namespace": "default",
+            "ranges": [
+              [
+                0,
+                1000
+              ]
+            ],
+            "rollout_variant": null,
+            "run": 1,
+            "salt": "samesalt00000000",
+            "status": "running",
+            "type": "client",
+            "variants": [
+              {
+                "key": "control",
+                "payload": {
+                  "v": "control"
+                },
+                "vid": 10001,
+                "weight_bp": 5000
+              },
+              {
+                "key": "treat",
+                "payload": {
+                  "v": "treat"
+                },
+                "vid": 10002,
+                "weight_bp": 5000
+              }
+            ],
+            "version": 3
+          }
+        ]
+      },
+      "subject": {
+        "attributes": {},
+        "device_id": "anti-33",
+        "namespaces": [
+          "default"
+        ]
+      }
+    }
+  ],
+  "schema": "supersdk.experiment.golden"
+}

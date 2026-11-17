@@ -1,0 +1,3 @@
+// TC T-019/T-020; ci_reason: public positive golden and structural privacy allowlist.
+import assert from 'node:assert/strict';import test from 'node:test';import {MONITORING_GOLDEN_VECTORS,MONITORING_PROTOCOL,validateMonitoringEnvelope} from '../src/monitoring/generated-contract.js';
+test('public schema exposes only metadata allowlists and every positive vector validates',()=>{for(const vector of MONITORING_GOLDEN_VECTORS)assert.equal(validateMonitoringEnvelope(vector.envelope),true,vector.name);const wire=new Set([...MONITORING_PROTOCOL.contextFields,...MONITORING_PROTOCOL.summaryFields]);for(const forbidden of ['message','stack','url','path','body','headers','args','result','token','deviceId','accountId'])assert.equal(wire.has(forbidden),false,forbidden);});

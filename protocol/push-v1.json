@@ -1,0 +1,662 @@
+{
+  "schema": "supersdk.push.contract",
+  "version": 1,
+  "feature_refs": [
+    "SDK-F261008030551-Android-Push-Firebase (S2)",
+    "CA-F038 (S1)",
+    "WS-18"
+  ],
+  "status": "frozen-day0",
+  "notes": [
+    "Day-0 契约单源（2026-10-21 CA-F261008030542 Round 3 F18 起唯一一份；原 services/super-server/tests/fixtures/push-contract-v1.json 副本已删除）。S1 以 include_str! 反向引用本文件（CA push/{mod,public,fcm}.rs 与 live/devices.rs、SS handler/proxy.rs 测试与 tests/push_contract.rs，照 services/super-server/src/suenc/mod.rs 先例），S2 Android 单测读 ../jssdk/protocol/push-v1.json、jssdk 测试读 protocol/push-v1.json；两侧禁止各写一份字面量（KNOWLEDGE GO-026）。改契约 = 改本文件，两侧测试同时跟随。",
+    "JSON 命名 snake_case；长度一律按 Unicode 码点（Rust chars() / Java codePointCount）计，不按字节、不按 UTF-16；JSSDK 不做第二套边界校验（透传原生，ARCH-8）。",
+    "字符集约束 'no_control' = 不含 U+0000–U+001F 与 U+007F；'trim' = 服务端与 SDK 都先 trim 再校验；SDK 本地校验失败不发请求（INVALID_ARGUMENT），服务端校验失败回 INVALID_REQUEST。",
+    "服务端 upsert 以本次登记体为准：缺省可选字段 = 清除（null / [] 与缺省同义），不保留旧值。SDK 侧恒显式带 user_id（可为 null）与 tags（可为 []）两个键，所有 register 完整请求示例（含 register_not_found）均显式写出（CR-8 / CR2-6）；register_invalid_tags 只给 request_delta。",
+    "D-T6 选 C 生效：点击打开的权威目标由 opened 回执响应返回（data.click_type / data.url），SDK 只打开服务端返回的 url；伪造 message_id 在服务端不存在 → NOT_FOUND → SDK 按 open_app 只拉起主 Activity。",
+    "2026-10-21 服务端事实并入（CA-F261008030542 Round 3 F17/F18）：限流数值 60/(spid,IP) + 6000/spid、PUSH_DISABLED 503 含义、token 字母表正则、两层 16 KiB 体限、opened 命中回权威 {click_type,url?}、未命中统一 NOT_FOUND（与 spid/env 未知同一信封）、fcm_message.reserved_keys；sdk_last_error 列与闭集不变（Q-7=A）。"
+  ],
+  "transport": {
+    "sdk_public_base": "https://api.supersdk.com",
+    "ss_paths": {
+      "register": "/superapi/v2/push/register",
+      "opened": "/superapi/v2/push/opened"
+    },
+    "ca_upstream_paths": {
+      "register": "/api/public/v2/push/register",
+      "opened": "/api/public/v2/push/opened"
+    },
+    "method": "POST",
+    "content_type": "application/json",
+    "sdk_headers_auto": [
+      "X-Aid",
+      "X-Super-API-ENV",
+      "X-Device-Id",
+      "X-SDK-Version",
+      "X-Os-Type",
+      "X-User-Agent"
+    ],
+    "header_body_consistency": "X-Aid == body.spid，X-Super-API-ENV == body.env（缺省 prod），X-Device-Id == body.device_id；不一致时服务端以 body 为准并可回 INVALID_REQUEST",
+    "envelope": {
+      "code": "string",
+      "message": "string",
+      "data": "object",
+      "extra": "object"
+    },
+    "rate_limit": "与 feedback 公开入口同纪律：fail-closed（Redis 不可用即 429）；每 (spid, 客户端 IP) 60/min + 每 spid 6000/min（PRD AC-1）；计数先于项目/环境解析，NOT_FOUND 的请求也计数；超限 HTTP 429 + code TOO_MANY_REQUESTS",
+    "ss_proxy_body_limit_bytes": 16384,
+    "ca_public_body_limit_bytes": 16384
+  },
+  "message_id_format": {
+    "regex": "^pm_[0-9a-f]{12}$",
+    "example": "pm_7f3a9c2e41b0",
+    "generated_by": "S1 发送时生成；SDK 只校验格式，不生成"
+  },
+  "enabled_semantics": {
+    "definition": "通知当前对用户可见：NotificationManagerCompat.areNotificationsEnabled() 为 true，且 Android 13+ 上 POST_NOTIFICATIONS 运行时权限已授予；两者皆满足才为 true。",
+    "false_means": "设备仍登记（D-4=A）；控制台设备页可区分「接入成功但未授权」；发送侧按 enabled 过滤或统计由 S1 决定。",
+    "refresh": "权限 / 系统开关变化后由 SDK 在下一求值点（冷启动 / 回前台 / 权限回调）重登记刷新。"
+  },
+  "field_constraints": {
+    "spid": {
+      "type": "string",
+      "regex": "^[a-z0-9]{8}$",
+      "required": true
+    },
+    "env": {
+      "type": "string",
+      "regex": "^[a-z0-9]{1,10}$",
+      "required": false,
+      "default": "prod"
+    },
+    "device_id": {
+      "type": "string",
+      "min": 8,
+      "max": 64,
+      "charset": "no_control",
+      "required": true,
+      "source": "SDevice.getOrCreateDeviceId()，与 X-Device-Id 一致"
+    },
+    "token": {
+      "type": "string",
+      "min": 32,
+      "max": 4096,
+      "charset": "no_control",
+      "regex": "^[A-Za-z0-9_:\\-]{32,4096}$",
+      "required": true,
+      "privacy": "日志只打末 6 位",
+      "note": "regex 是服务端（CA validate_register）校验；长度按码点 32..4096。SDK 本地只做 no_control + 长度校验（1.0.0.66 已发布行为），字母表外字符由服务端回 INVALID_REQUEST（FCM 下发的 token 恒在该字母表内）"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "android",
+        "ios"
+      ],
+      "required": true
+    },
+    "app_version": {
+      "type": "string",
+      "min": 1,
+      "max": 32,
+      "charset": "no_control",
+      "required": true
+    },
+    "sdk_version": {
+      "type": "string",
+      "min": 1,
+      "max": 32,
+      "charset": "no_control",
+      "required": true
+    },
+    "locale": {
+      "type": "string",
+      "format": "BCP-47 language tag（Locale.getDefault().toLanguageTag()）",
+      "max": 35,
+      "required": false
+    },
+    "user_id": {
+      "type": "string|null",
+      "min": 1,
+      "max": 128,
+      "charset": "no_control",
+      "trim": true,
+      "required": false,
+      "null_semantics": "null / 缺省 = 清除；空串在 SDK 侧折为 null",
+      "security": "客户端自报、无身份校验；按 user_id 定向不是身份认证"
+    },
+    "tags": {
+      "type": "array<string>|null",
+      "max_items": 10,
+      "item_min": 1,
+      "item_max": 32,
+      "item_charset": "no_control",
+      "trim": true,
+      "dedupe": true,
+      "required": false,
+      "null_semantics": "[] / null / 缺省 = 清除"
+    },
+    "enabled": {
+      "type": "boolean",
+      "required": true,
+      "see": "enabled_semantics"
+    }
+  },
+  "register": {
+    "request": {
+      "fields": [
+        "spid",
+        "env",
+        "device_id",
+        "token",
+        "platform",
+        "app_version",
+        "sdk_version",
+        "locale",
+        "user_id",
+        "tags",
+        "enabled"
+      ],
+      "required": [
+        "spid",
+        "device_id",
+        "token",
+        "platform",
+        "app_version",
+        "sdk_version",
+        "enabled"
+      ],
+      "optional": [
+        "env",
+        "locale",
+        "user_id",
+        "tags"
+      ]
+    },
+    "response_success": {
+      "code": "SUCCESS",
+      "message": "",
+      "data": {
+        "device_id": "string · 回显请求 device_id",
+        "status": "enum active | unregistered"
+      },
+      "extra": {}
+    },
+    "sdk_behaviour": {
+      "triggers": [
+        "首次（本地无持久化指纹）取得 token",
+        "FCM token 刷新",
+        "setAPIEnvironment 切到不同环境",
+        "setTags / setUserId 改变了值",
+        "requestPermission 返回",
+        "冷启动 / 回前台时 enabled 与上次不同",
+        "指纹相同但上次成功登记超过 24h"
+      ],
+      "fingerprint": [
+        "env",
+        "token",
+        "tags",
+        "user_id",
+        "enabled",
+        "locale",
+        "app_version",
+        "sdk_version"
+      ],
+      "ttl_hours": 24,
+      "in_flight": "同一时刻只允许一个在途登记；在途期间触发置脏，成功后按最新值补发一次；失败不补发",
+      "env_read_at": "发送时（不在触发时快照）",
+      "retry": "不在进程内定时重试；下一求值点再试"
+    }
+  },
+  "opened": {
+    "request": {
+      "fields": [
+        "spid",
+        "env",
+        "device_id",
+        "message_id"
+      ],
+      "required": [
+        "spid",
+        "device_id",
+        "message_id"
+      ],
+      "optional": [
+        "env"
+      ],
+      "message_id": {
+        "regex": "^pm_[0-9a-f]{12}$"
+      },
+      "note": "必须先于打开动作发出（D-T6 C）：中转 Activity 等待响应 ≤ 2000ms"
+    },
+    "response_success": {
+      "code": "SUCCESS",
+      "message": "",
+      "data": {
+        "click_type": "open_app | open_url（服务端记录的发送配置 · 权威值）",
+        "url": "click_type=open_url 时存在（open_app 不带 url 键）· 服务端记录的发送配置 url · SDK 只打开此值"
+      },
+      "extra": {},
+      "note": "D-T6 选 C 生效：SDK 不信任 intent extras 里的 url，只打开 data.url；data.url 仍须通过 SDK scheme 白名单（http/https/宿主白名单）"
+    },
+    "server_semantics": "校验 message_id 属于 (spid, env, device_id) 的投递行。命中 = 该设备在该消息下有 status ∈ sending/retrying/delivered/skipped（1/2/3/6）的投递行（skipped 含取消时已交给 FCM 的行）：回 SUCCESS + 服务端权威 {click_type, url?}，重复回执幂等成功并同样返回 click_type/url；只有 status ∈ 1/2/3 且尚未回执过的行才落 opened_at 并 opened+1（按 (message_id, device_id) 去重，opened ≤ delivered + sending/retrying）。未命中（message 不存在 / 不属于该 spid·env / 该设备无投递行 / 投递行不可打开）→ HTTP 200 + NOT_FOUND，与 spid/env 未知同一信封、各种未命中之间不可区分。投递明细保留 7 天：超过 7 天的点击按未命中处理（只拉起 App）",
+    "sdk_behaviour": "点击通过 AC-4 本地校验后立即回执一次并等待 ≤2000ms：SUCCESS → 回调 listener / push.opened / lastOpened / $push_open（载荷 verified=true，url/click_type 取服务端值），再按 data.click_type/url 打开；NOT_FOUND → 只拉起主 Activity、不回调、不上报、SLogger.e；超时 / 网络失败 / 其他错误（回执不可达）→ 回调与 push.opened / $push_open 照做（消息本地合规，载荷 verified=false、url 为 intent 原值），但不打开 URL、只拉起主 Activity（open_app），不重试，只记 SLogger.e + SLogger.w。降级语义（D-T6 C · CR2-1）：伪造防护只在服务端可达时完整；回执不可达时伪造者最多能触发一次宿主回调与事件、拿不到打开页面。",
+    "response_not_found": {
+      "code": "NOT_FOUND",
+      "message": "not found",
+      "data": {},
+      "extra": {},
+      "meaning": "message_id 不存在、或不属于该 device_id / spid / env（含伪造 intent）、或该设备投递行不可打开 / 已过 7 天保留期 → SDK 按 open_app 只拉起主 Activity，不回调、不上报；信封与 spid/env 未知的 NOT_FOUND 完全相同"
+    },
+    "degrade_semantics": "回执不可达时：回调与事件照做（verified=false）但不打开 URL（只 open_app）；$push_open 照报；伪造防护在服务端可达时才完整，离线时伪造者最多触发一次回调与事件、拿不到打开页面"
+  },
+  "error_codes": [
+    {
+      "http": 200,
+      "code": "INVALID_REQUEST",
+      "meaning": "字段校验失败（长度 / 字符集 / 格式 / header-body 不一致）",
+      "sdk_last_error": "INVALID_REQUEST",
+      "retry": "不自动重试（配置或实现错误）"
+    },
+    {
+      "http": 200,
+      "code": "NOT_FOUND",
+      "meaning": "register：spid 或 env 未在控制台注册；opened：message_id 不属于该设备/项目/环境",
+      "sdk_last_error": "NOT_FOUND（register）/ opened 路径不进 lastError，按 open_app 处理",
+      "retry": "不自动重试；register 下一求值点再试"
+    },
+    {
+      "http": 200,
+      "code": "SPID_REQUIRED",
+      "meaning": "请求缺 spid",
+      "sdk_last_error": "UNAVAILABLE",
+      "retry": "闭集外 code 归一 UNAVAILABLE，原 code 只写 logcat（PRD AC-2 v1.0 · D-T1 维持）"
+    },
+    {
+      "http": 503,
+      "code": "PUSH_DISABLED",
+      "meaning": "推送模块关闭（PUSH_MODULE_ENABLED=false · 全部 push 路由与公开入口 · HTTP 503）；与凭据是否配置无关（未配置是发送面的 PUSH_NOT_CONFIGURED）",
+      "sdk_last_error": "UNAVAILABLE",
+      "retry": "下一求值点再试"
+    },
+    {
+      "http": 200,
+      "code": "PUSH_DEVICE_QUOTA_EXCEEDED",
+      "meaning": "环境设备数达到上限（100,000）",
+      "sdk_last_error": "UNAVAILABLE",
+      "retry": "下一求值点再试"
+    },
+    {
+      "http": 429,
+      "code": "TOO_MANY_REQUESTS",
+      "meaning": "公开入口限流（与 CA PRD 对齐：HTTP 429 + code TOO_MANY_REQUESTS）",
+      "sdk_last_error": "RATE_LIMITED",
+      "retry": "下一求值点再试（SDK 以 HTTP 429 为判据，不依赖信封 code）"
+    },
+    {
+      "http": "5xx (非 503+PUSH_DISABLED)",
+      "code": "UNAVAILABLE",
+      "meaning": "服务端不可用",
+      "sdk_last_error": "UNAVAILABLE",
+      "retry": "下一求值点再试"
+    },
+    {
+      "http": "other non-2xx",
+      "code": "-",
+      "meaning": "如 404（代理未部署）",
+      "sdk_last_error": "UNAVAILABLE",
+      "retry": "下一求值点再试"
+    },
+    {
+      "http": "IO",
+      "code": "-",
+      "meaning": "无网络 / 超时 / 连接失败",
+      "sdk_last_error": "NETWORK_ERROR",
+      "retry": "下一求值点再试"
+    },
+    {
+      "http": 200,
+      "code": "<unknown or malformed>",
+      "meaning": "闭集外业务码、信封形状不对（PROTOCOL_MISMATCH）",
+      "sdk_last_error": "UNAVAILABLE",
+      "retry": "下一求值点再试"
+    },
+    {
+      "http": "-",
+      "code": "-",
+      "meaning": "Firebase 未配置 / 取不到 token（SDK 本地）",
+      "sdk_last_error": "TOKEN_UNAVAILABLE",
+      "retry": "下一次 token 回调"
+    }
+  ],
+  "sdk_last_error_closed_set": [
+    "TOKEN_UNAVAILABLE",
+    "NOT_FOUND",
+    "INVALID_REQUEST",
+    "RATE_LIMITED",
+    "NETWORK_ERROR",
+    "UNAVAILABLE"
+  ],
+  "fcm_message": {
+    "description": "S1 经 FCM HTTP v1 messages:send 发出的消息形态。App 后台 / 被杀时由 FCM SDK 按 notification 渲染，点击目标由 android.notification.click_action 决定；前台由外挂包 onMessageReceived 自渲染并把同一 data 原键放进 PendingIntent extras。",
+    "click_action": "com.supersdk.push.OPEN",
+    "data_keys": {
+      "spid": "发送项目 spid（SDK 与当前一致才处理）",
+      "env": "发送环境（SDK 与当前一致才处理）",
+      "message_id": "pm_[0-9a-f]{12}",
+      "url": "click.type=open_url 时存在；http(s) 或宿主白名单 scheme",
+      "click_type": "open_app | open_url"
+    },
+    "custom_data_passthrough": "发送方 data{} 原键透传，不得覆盖上述固定键；固定键名不加 supersdk_ 前缀，点击 intent extras 就是 data 原键名",
+    "reserved_keys": {
+      "fcm": [
+        "from",
+        "notification",
+        "message_type",
+        "collapse_key",
+        "google.*",
+        "gcm.*"
+      ],
+      "platform": [
+        "spid",
+        "env",
+        "message_id",
+        "url",
+        "click_type"
+      ],
+      "rule": "发送方 data 含任一保留键 → 发送面 PUSH_INVALID_ARGUMENT（CA-F261008030542 AC-3）"
+    },
+    "size_limit_bytes": 4096,
+    "example": {
+      "message": {
+        "token": "<device fcm token>",
+        "notification": {
+          "title": "双十一预热：全场 8 折",
+          "body": "11 月 1 日 0 点开抢",
+          "image": "https://cdn.example.com/promo/1111-banner.png"
+        },
+        "android": {
+          "priority": "HIGH",
+          "notification": {
+            "click_action": "com.supersdk.push.OPEN",
+            "image": "https://cdn.example.com/promo/1111-banner.png"
+          }
+        },
+        "data": {
+          "spid": "ab12cd34",
+          "env": "prod",
+          "message_id": "pm_7f3a9c2e41b0",
+          "url": "https://demo.example.com/promo/1111",
+          "click_type": "open_url",
+          "campaign": "1111"
+        }
+      }
+    },
+    "open_app_example_data": {
+      "spid": "ab12cd34",
+      "env": "staging",
+      "message_id": "pm_0a1b2c3d4e5f",
+      "click_type": "open_app"
+    }
+  },
+  "push_open_event": {
+    "event_name": "$push_open",
+    "params": {
+      "message_id": "required",
+      "url": "optional",
+      "click_type": "open_app | open_url",
+      "verified": "boolean · true=来自服务端回执 · false=回执不可达的降级路径（v0.3）"
+    },
+    "common_params_from_pipeline": [
+      "spid",
+      "env",
+      "device_id",
+      "app_version",
+      "sdk_version"
+    ],
+    "condition": "仅 message_id 合规且 spid/env 与当前一致的点击；每次点击恰好一条"
+  },
+  "examples": [
+    {
+      "name": "first_register",
+      "endpoint": "register",
+      "request": {
+        "spid": "ab12cd34",
+        "env": "prod",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "token": "fXk9Qw2pT0a:APA91bExampleTokenExampleTokenExampleTokenExampleToken1234567890",
+        "platform": "android",
+        "app_version": "1.0.0",
+        "sdk_version": "1.0.0",
+        "locale": "zh-CN",
+        "user_id": "u_12345",
+        "tags": [
+          "vip",
+          "beta"
+        ],
+        "enabled": true
+      },
+      "response": {
+        "code": "SUCCESS",
+        "message": "",
+        "data": {
+          "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+          "status": "active"
+        },
+        "extra": {}
+      }
+    },
+    {
+      "name": "clear_tags_and_user",
+      "endpoint": "register",
+      "request": {
+        "spid": "ab12cd34",
+        "env": "prod",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "token": "fXk9Qw2pT0a:APA91bExampleTokenExampleTokenExampleTokenExampleToken1234567890",
+        "platform": "android",
+        "app_version": "1.0.0",
+        "sdk_version": "1.0.0",
+        "locale": "zh-CN",
+        "user_id": null,
+        "tags": [],
+        "enabled": true
+      },
+      "response": {
+        "code": "SUCCESS",
+        "message": "",
+        "data": {
+          "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+          "status": "active"
+        },
+        "extra": {}
+      },
+      "expect": "服务端清空 user_id 与 tags，不保留旧值"
+    },
+    {
+      "name": "register_disabled",
+      "endpoint": "register",
+      "request": {
+        "spid": "ab12cd34",
+        "env": "staging",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "token": "fXk9Qw2pT0a:APA91bExampleTokenExampleTokenExampleTokenExampleToken1234567890",
+        "platform": "android",
+        "app_version": "1.0.0",
+        "sdk_version": "1.0.0",
+        "locale": "en-US",
+        "enabled": false,
+        "user_id": null,
+        "tags": []
+      },
+      "response": {
+        "code": "SUCCESS",
+        "message": "",
+        "data": {
+          "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+          "status": "active"
+        },
+        "extra": {}
+      },
+      "expect": "设备仍入库；enabled=false 可见于设备页；SDK 显式带 user_id:null 与 tags:[]（无值也不省键）"
+    },
+    {
+      "name": "register_not_found",
+      "endpoint": "register",
+      "request": {
+        "spid": "zz99zz99",
+        "env": "prod",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "token": "fXk9Qw2pT0a:APA91bExampleTokenExampleTokenExampleTokenExampleToken1234567890",
+        "platform": "android",
+        "app_version": "1.0.0",
+        "sdk_version": "1.0.0",
+        "enabled": true,
+        "user_id": null,
+        "tags": []
+      },
+      "response": {
+        "code": "NOT_FOUND",
+        "message": "project or environment not found",
+        "data": {},
+        "extra": {}
+      },
+      "expect_sdk_last_error": "NOT_FOUND"
+    },
+    {
+      "name": "register_invalid_tags",
+      "endpoint": "register",
+      "request_delta": {
+        "tags": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "j",
+          "k"
+        ]
+      },
+      "response": {
+        "code": "INVALID_REQUEST",
+        "message": "tags exceeds 10 items",
+        "data": {},
+        "extra": {}
+      },
+      "expect_sdk": "SDK 本地先拒绝（INVALID_ARGUMENT，不发请求）；本例只用于服务端侧校验测试"
+    },
+    {
+      "name": "register_invalid_token_charset",
+      "endpoint": "register",
+      "request_delta": {
+        "token": "bad token with spaces and ✓ chars that is definitely long enough to pass length"
+      },
+      "response": {
+        "code": "INVALID_REQUEST",
+        "message": "token has invalid characters",
+        "data": {},
+        "extra": {}
+      },
+      "expect_sdk": "服务端侧校验向量：SDK 本地只做 no_control + 长度校验，本例由服务端回 INVALID_REQUEST（FCM token 恒在字母表内，实际不会发生）"
+    },
+    {
+      "name": "opened_receipt",
+      "endpoint": "opened",
+      "request": {
+        "spid": "ab12cd34",
+        "env": "prod",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "message_id": "pm_7f3a9c2e41b0"
+      },
+      "response": {
+        "code": "SUCCESS",
+        "message": "",
+        "data": {
+          "click_type": "open_url",
+          "url": "https://demo.example.com/promo/1111"
+        },
+        "extra": {}
+      },
+      "expect": "SDK 只打开 data.url（经 scheme 白名单），忽略 intent extras 的 url"
+    },
+    {
+      "name": "opened_receipt_duplicate",
+      "endpoint": "opened",
+      "request": {
+        "spid": "ab12cd34",
+        "env": "prod",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "message_id": "pm_7f3a9c2e41b0"
+      },
+      "response": {
+        "code": "SUCCESS",
+        "message": "",
+        "data": {
+          "click_type": "open_url",
+          "url": "https://demo.example.com/promo/1111"
+        },
+        "extra": {}
+      },
+      "expect": "幂等成功，opened 计数不重复 +1，仍返回权威 click_type/url"
+    },
+    {
+      "name": "opened_receipt_forged",
+      "endpoint": "opened",
+      "request": {
+        "spid": "ab12cd34",
+        "env": "prod",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "message_id": "pm_deadbeef0000"
+      },
+      "response": {
+        "code": "NOT_FOUND",
+        "message": "not found",
+        "data": {},
+        "extra": {}
+      },
+      "expect_sdk": "只拉起主 Activity；不回调 onOpened、不投递 push.opened、不写 lastOpened、不上报 $push_open；SLogger.e 一条"
+    },
+    {
+      "name": "opened_receipt_open_app",
+      "endpoint": "opened",
+      "request": {
+        "spid": "ab12cd34",
+        "env": "staging",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "message_id": "pm_0a1b2c3d4e5f"
+      },
+      "response": {
+        "code": "SUCCESS",
+        "message": "",
+        "data": {
+          "click_type": "open_app"
+        },
+        "extra": {}
+      },
+      "expect_sdk": "回调/上报照做；只拉起主 Activity"
+    },
+    {
+      "name": "opened_receipt_unknown_message",
+      "endpoint": "opened",
+      "request": {
+        "spid": "ab12cd34",
+        "env": "prod",
+        "device_id": "d8f3a1c2-9b7e-4f10-a6c5-3e2d1f0b9a87",
+        "message_id": "pm_ffffffffffff"
+      },
+      "response": {
+        "code": "NOT_FOUND",
+        "message": "not found",
+        "data": {},
+        "extra": {}
+      },
+      "expect": "未命中（未知 message / 他环境 / 无投递行 / 不可打开 / 超 7 天）：HTTP 200 + NOT_FOUND，与 spid/env 未知同一信封，无副作用",
+      "expect_sdk": "同 opened_receipt_forged：只拉起主 Activity；不回调、不上报"
+    }
+  ],
+  "frozen_at": "2026-10-21",
+  "frozen_by": "CA-F261008030542 review R3 F18（单源收敛：SDK-F042 + CA-F038 两侧共用本文件）"
+}

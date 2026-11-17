@@ -1,6 +1,6 @@
 {
   "name": "@supersdk/jssdk",
-  "version": "1.0.0",
+  "version": "3.0.1-SNAPSHOT",
   "description": "Environment-neutral SuperSDK runtime for Web and Hybrid applications",
   "license": "MIT",
   "type": "module",
@@ -23,20 +23,40 @@
       "import": "./dist/global.js",
       "require": "./dist/global.cjs"
     },
+    "./protocol": {
+      "types": "./dist/protocol.d.ts",
+      "import": "./dist/protocol.js",
+      "require": "./dist/protocol.cjs"
+    },
+    "./mock": {
+      "types": "./dist/mock.d.ts",
+      "import": "./dist/mock.js",
+      "require": "./dist/mock.cjs"
+    },
     "./supersdk.js": "./dist/supersdk.js"
   },
   "files": [
     "dist",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "JSBridge.md",
+    "protocol"
   ],
   "scripts": {
+    "generate:bridge": "node scripts/generate-bridge-contract.mjs",
+    "check:bridge-generated": "node scripts/generate-bridge-contract.mjs --check",
+    "generate:monitoring": "node scripts/generate-monitoring-contract.mjs --js-only",
+    "check:monitoring-generated": "node scripts/generate-monitoring-contract.mjs --js-only --check",
+    "generate:suenc": "node scripts/generate-suenc-contract.mjs --js-only",
+    "check:suenc-generated": "node scripts/generate-suenc-contract.mjs --js-only --check",
     "build": "node scripts/build.mjs",
-    "test": "npm run build && node --test tests/analytics-flush.test.mjs tests/analytics-params.test.mjs tests/analytics-persistence.test.mjs tests/analytics-queue.test.mjs tests/consent-migration.test.mjs tests/runtime.test.mjs tests/settings-cache.test.mjs tests/settings-contract.test.mjs tests/settings-errors.test.mjs tests/settings-security.test.mjs && node supersdk.test.cjs",
-    "test:browser": "npm run build && node --test tests/browser.e2e.test.mjs",
-    "test:pack": "npm run build && node --test tests/public-entry-smoke.test.mjs tests/public-export-gate.test.mjs tests/public-pack-clean-install.test.mjs tests/release-provenance.e2e.test.mjs",
-    "test:public": "npm run build && node --test tests/public-docs-smoke.test.mjs",
+    "test:bridge": "npm run check:bridge-generated && node --test tests/bridge-*.test.mjs tests/runtime-compat.test.mjs",
+    "test:monitoring": "npm run check:monitoring-generated && node --test --test-timeout=120000 tests/monitoring-lifecycle.test.mjs tests/monitoring-consent.test.mjs tests/monitoring-errors.test.mjs tests/monitoring-performance.test.mjs tests/monitoring-jsb.test.mjs tests/monitoring-budget.test.mjs tests/monitoring-budget.performance.test.mjs tests/monitoring-public-contract.test.mjs tests/monitoring-public-entry.test.mjs tests/monitoring-compat.test.mjs tests/monitoring-remote-adapter.test.mjs",
+    "test": "npm run build && npm run test:bridge && npm run test:monitoring && npm run check:suenc-generated && node --test --test-timeout=120000 tests/suenc.test.mjs tests/analytics-flush.test.mjs tests/api-environment.test.mjs tests/analytics-params.test.mjs tests/analytics-persistence.test.mjs tests/analytics-queue.test.mjs tests/consent-migration.test.mjs tests/runtime.test.mjs tests/settings-cache.test.mjs tests/settings-contract.test.mjs tests/settings-errors.test.mjs tests/settings-security.test.mjs tests/feedback.test.mjs tests/push.test.mjs tests/experiment.test.mjs && node supersdk.test.cjs",
+    "test:browser": "npm run build && node --test --test-timeout=300000 tests/browser.e2e.test.mjs tests/monitoring-browser.e2e.test.mjs",
+    "test:pack": "npm run build && node --test --test-timeout=300000 tests/public-entry-smoke.test.mjs tests/public-export-gate.test.mjs tests/public-pack-clean-install.test.mjs tests/monitoring-public-pack.test.mjs tests/release-provenance.e2e.test.mjs",
+    "test:public": "npm run build && node --test --test-timeout=120000 tests/public-docs-smoke.test.mjs",
     "verify:public-tree": "node scripts/verify-public-tree.mjs",
     "verify:release": "node scripts/verify-release.mjs --candidate",
     "verify": "npm run verify:public-tree && npm run test && npm run test:browser && npm run test:pack && npm run test:public && npm run verify:public-tree"

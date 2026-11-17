@@ -1,0 +1,29 @@
+{
+  "schema": "supersdk.jsb.golden-vectors",
+  "protocolVersion": { "major": 1, "minor": 0 },
+  "wire": [
+    { "id": "downloadFile", "callerArgs": ["https://example.invalid/a.zip", "{\"Authorization\":\"redacted\"}", "downloads/a.zip"], "requestId": "owner-1:req-1", "nativeArgs": ["owner-1:req-1", "https://example.invalid/a.zip", "{\"Authorization\":\"redacted\"}", "downloads/a.zip"] },
+    { "id": "share", "callerArgs": ["hello"], "nativeArgs": ["hello"] },
+    { "id": "openPage", "callerArgs": ["https://example.invalid/", "{\"showTitleBar\":true}"], "nativeArgs": ["https://example.invalid/", "{\"showTitleBar\":true}"] },
+    { "id": "publishToWebView", "callerArgs": ["*", "refresh", "{\"ok\":true}"], "nativeArgs": ["*", "refresh", "{\"ok\":true}"] },
+    { "id": "requestShortUrl", "callerArgs": ["{\"url\":\"https://example.invalid/\"}"], "requestId": "owner-1:req-2", "nativeArgs": ["{\"callbackId\":\"owner-1:req-2\",\"url\":\"https://example.invalid/\"}"] }
+  ],
+  "results": [
+    { "name": "success", "input": { "code": "SUCCESS", "data": { "ok": true } }, "outcome": { "type": "success" } },
+    { "name": "known_alias", "input": { "code": "INVALID_PARAMS", "message": "bad" }, "outcome": { "type": "error", "code": "INVALID_ARGUMENT", "retryable": false } },
+    { "name": "unknown_provider", "input": { "code": "PAYMENT_VENDOR_42", "message": "private" }, "outcome": { "type": "error", "code": "BRIDGE_ERROR", "nativeCode": "UNKNOWN", "retryable": false } },
+    { "name": "missing_code", "input": { "data": null }, "outcome": { "type": "error", "code": "PROTOCOL_MISMATCH" } }
+  ],
+  "events": [
+    { "type": "BROADCAST", "key": "inventory.changed", "id": "broadcast" },
+    { "type": "WEBVIEW_MESSAGE", "key": "target-1", "id": "webviewMessage" },
+    { "type": "SYSTEM", "key": "onEnterForeground", "id": "system.onEnterForeground" },
+    { "type": "SYSTEM", "key": "onEnterBackground", "id": "system.onEnterBackground" }
+  ],
+  "negativeManifest": [
+    { "name": "reserved_bootstrap", "mutation": "method:getBridgeManifest", "reasonCode": "RESERVED_METHOD" },
+    { "name": "duplicate_method", "mutation": "duplicate:share", "reasonCode": "DUPLICATE_METHOD" },
+    { "name": "wrong_download_order", "mutation": "args:downloadFile", "reasonCode": "METHOD_SIGNATURE" },
+    { "name": "unsupported_major", "mutation": "major:2", "reasonCode": "UNSUPPORTED_MAJOR" }
+  ]
+}

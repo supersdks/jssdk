@@ -2,10 +2,15 @@
  * Legacy JSBridge runtime, mechanically extracted from supersdk.js.
  * Keep bridge wrappers behavior-compatible; public Web behavior is composed outside.
  */
-export function createLegacyRuntime(global) {
+import { validateFeedbackParams } from '../feedback/params.js';
+import { mapNativeErrorCode } from '../bridge/protocol.js';
+
+export function createLegacyRuntime(global, options) {
   'use strict';
 
   global = global || {};
+  options = options || {};
+  const bridgeOwner = options.bridgeOwner || null;
 
   // 回调管理
   const callbackMap = {};
@@ -41,6 +46,52 @@ export function createLegacyRuntime(global) {
     var err = new Error(code);
     err.detail = detail || '';
     return err;
+  }
+
+  // ===== 推送 helpers（SDK-F261008030551 · SuperSDK.push namespace）=====
+  // 推送错误带 code / nativeCode / retryable 字段：Native 原始 code 经 JSB 注册表归一
+  // （NOT_IMPLEMENTED→UNSUPPORTED · INVALID_PARAM→INVALID_ARGUMENT · NO_ACTIVITY→UNAVAILABLE(retryable)）。
+  function _pushError(code, detail, nativeCode, retryable) {
+    var err = _makeError(code, detail);
+    err.code = code;
+    err.retryable = retryable === true;
+    if (typeof nativeCode === 'string' && nativeCode) err.nativeCode = nativeCode;
+    return err;
+  }
+
+  var PUSH_NOT_SUPPORTED_DETAIL = 'Push is not supported outside the app container';
+
+  // 端内一次 push JSB 往返：下标访问 + .call（新成员不属于 runtime-compat 冻结的 1.0 直接引用飞地），
+  // 成功 resolve result.data；失败按注册表归一后 reject。
+  function _pushRequest(nativeName, extraArgs, timeout) {
+    var bridgeFn = global.appbridge[nativeName];
+    if (typeof bridgeFn !== 'function') {
+      return Promise.reject(_pushError('SDK_TOO_OLD', 'SuperSDK native too old for ' + nativeName));
+    }
+    return new Promise(function(resolve, reject) {
+      var callbackId = generateCallbackId();
+      registerCallback(callbackId, function(result) {
+        delete callbackMap[callbackId];
+        if (!result || result.code !== 'SUCCESS') {
+          var mapped = mapNativeErrorCode(result && result.code);
+          reject(_pushError(mapped.code, (result && result.message) || '', mapped.nativeCode, mapped.retryable));
+          return;
+        }
+        resolve(result.data && typeof result.data === 'object' ? result.data : {});
+      }, timeout);
+      bridgeFn.apply(global.appbridge, [callbackId].concat(extraArgs));
+    });
+  }
+
+  // PushStatus 透传：只做类型兜底，字段语义由 Native（PushStatus.toJson）单源定义。
+  function _pushStatusFromNative(data) {
+    var status = { supported: !!(data && data.supported) };
+    if (!status.supported) return status;
+    status.permission = typeof data.permission === 'string' ? data.permission : 'denied';
+    status.registered = data.registered === true;
+    if (typeof data.lastError === 'string' && data.lastError) status.lastError = data.lastError;
+    if (data.lastOpened && typeof data.lastOpened === 'object') status.lastOpened = data.lastOpened;
+    return status;
   }
 
   // 生成 UUID v4
@@ -295,11 +346,12 @@ export function createLegacyRuntime(global) {
 
   // 生成唯一回调 ID
   function generateCallbackId() {
-    return 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    return bridgeOwner ? bridgeOwner.nextRequestId() : 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 
   // 注册回调
   function registerCallback(callbackId, callback, timeout) {
+    if (bridgeOwner) bridgeOwner.ensureRegistered();
     callbackMap[callbackId] = callback;
 
     // 超时处理
@@ -365,12 +417,50 @@ export function createLegacyRuntime(global) {
   };
 
   function installBridge() {
+    if (bridgeOwner) return bridgeOwner.ensureRegistered();
     global.JSBridge = JSBridge;
-    // 通知 Native 端 JSBridge 已就绪，可以 flush 缓冲的消息。
     if (global.appbridge && global.appbridge.onJSBridgeReady) {
       global.appbridge.onJSBridgeReady();
     }
     return JSBridge;
+  }
+
+  function disposeBridgeBindings(reason) {
+    const result = { code: reason?.code || 'DISPOSED', message: reason?.code || 'DISPOSED' };
+    Object.keys(callbackMap).forEach(function(callbackId) {
+      const callback = callbackMap[callbackId];
+      delete callbackMap[callbackId];
+      try { callback(result); } catch (error) {
+        options.diagnostics?.emit('warn', { category: 'bridge_callback', outcome: 'listener_error', errorClass: error?.name || 'Error' });
+      }
+    });
+    Object.keys(broadcastListeners).forEach(function(key) { delete broadcastListeners[key]; });
+    Object.keys(systemListeners).forEach(function(key) { delete systemListeners[key]; });
+    _backPressedCallback = null;
+  }
+
+  if (bridgeOwner) {
+    bridgeOwner.setLegacyHandlers({
+      hasCallback: function(callbackId) { return typeof callbackMap[callbackId] === 'function'; },
+      onCallback: function(callbackId, data) {
+        if (typeof callbackMap[callbackId] !== 'function') return false;
+        JSBridge.subscribeHandler('ASYNC_CALLBACK', callbackId, data);
+        return true;
+      },
+      onEvent: function(eventType, eventKey, data) {
+        if (eventType === 'BROADCAST' && (broadcastListeners[eventKey] || []).length) {
+          JSBridge.subscribeHandler(eventType, eventKey, data);
+          return true;
+        }
+        if (eventType === 'SYSTEM' && (systemListeners[eventKey] || []).length) {
+          JSBridge.subscribeHandler(eventType, eventKey, data);
+          return true;
+        }
+        return false;
+      },
+      onBackPressed: function() { return JSBridge.onBackPressed(); },
+      onDetach: disposeBridgeBindings
+    });
   }
 
   // SDK 对象
@@ -1247,6 +1337,47 @@ export function createLegacyRuntime(global) {
       global.appbridge.addEventCommonParam(key, value == null ? '' : String(value));
     },
 
+    // ==================== 用户反馈 ====================
+
+    /**
+     * 提交用户反馈（CA-F260916-user-feedback）· 端内经 JSB `submitFeedback(callbackId, paramsJson)`，
+     * Native 补齐 spid/env/device/平台/版本后 POST /superapi/v2/feedback。
+     * 非端环境由外层 runtime（createSuperSDK）改走 fetch；此处直接调用时报 NOT_IN_APP。
+     * @param {{scene:string, subScene?:string, title:string, content:string, userId?:string, extra?:Object}} params
+     * @returns {Promise<{feedbackId:number}>}
+     */
+    submitFeedback: function(params) {
+      var checked = validateFeedbackParams(params);
+      if (checked.detail) {
+        return _invalidParams(checked.detail);
+      }
+      if (!global.appbridge) {
+        return Promise.reject(_makeError('NOT_IN_APP',
+          'Not in app environment. Use SuperSDK.init() on the web runtime.'));
+      }
+      // 与 querySubscriptionOffers 同款：用下标访问而非成员点号访问，
+      // 不扰动 runtime-compat 冻结的 1.0 直接引用清单（新 JSB 不属于 1.0 兼容飞地）。
+      var submitFeedbackBridge = global.appbridge['submitFeedback'];
+      if (typeof submitFeedbackBridge !== 'function') {
+        return Promise.reject(_makeError('SDK_TOO_OLD',
+          'SuperSDK native too old for submitFeedback'));
+      }
+      var paramsJson = JSON.stringify(checked.value);
+      return new Promise(function(resolve, reject) {
+        var callbackId = generateCallbackId();
+        registerCallback(callbackId, function(result) {
+          delete callbackMap[callbackId];
+          if (result.code !== 'SUCCESS') {
+            reject(_makeError(result.code || 'ERROR', result.message));
+            return;
+          }
+          var id = result.data && result.data.feedbackId;
+          resolve({ feedbackId: typeof id === 'number' ? id : Number(id) || 0 });
+        }, 15000);
+        submitFeedbackBridge.call(global.appbridge, callbackId, paramsJson);
+      });
+    },
+
     // ==================== Host Method ====================
 
     /**
@@ -1337,11 +1468,12 @@ export function createLegacyRuntime(global) {
     // F036 破坏式重构 · 顶层老 7 API 全部删除:
     //   purchase / queryProducts / acknowledgePurchase / consumePurchase /
     //   restorePurchases / getPayProviders / registerPayProvider
-    // 新挂载 SuperSDK.pay namespace · 含 4 个 API:
+    // 新挂载 SuperSDK.pay namespace:
     //   pay.purchase(payConfig) — 唯一支付入口(新 payConfig 形态)
     //   pay.getProviders()      — 探测宿主能力
     //   pay.registerProvider(name, provider) — 注册 Web 收银台(checkout 入参变为 payParams)
     //   pay.restorePurchases(options) — 客户端 restore · provider 可选实现
+    //   pay.querySubscriptionOffers(options) — Google Play 当前账号 eligible offers
     //
     // payParams reserved keys:productId / accountId(SDK 读它们路由 Native IAP)
     // 其他 payParams 字段:Web 路径 checkout(payParams) 全透传 · Native 不传(无 JSON payload 通道)
@@ -1414,6 +1546,80 @@ export function createLegacyRuntime(global) {
       },
 
       /**
+       * 查询 Native provider 为当前用户返回的 eligible subscription offers。
+       * 只返回结构化白名单字段，offerToken 无论来自哪一层都不会暴露给 H5。
+       *
+       * @param {Object} options
+       * @param {string} [options.provider] - 单 Provider 可省
+       * @param {string[]} options.productIds - Google Play subscription product IDs
+       * @returns {Promise<Object[]>}
+       */
+      querySubscriptionOffers: function(options) {
+        if (!options || typeof options !== 'object' || Array.isArray(options)) {
+          return _invalidParams('options must be object');
+        }
+        if (!Array.isArray(options.productIds) || options.productIds.length === 0
+            || options.productIds.some(function(id) { return typeof id !== 'string' || id.length === 0; })) {
+          return _invalidParams('productIds must be a non-empty string array');
+        }
+        if (options.provider !== undefined && typeof options.provider !== 'string') {
+          return _invalidParams('provider must be string');
+        }
+        if (!global.appbridge) {
+          return Promise.reject(_makeError('NOT_IN_APP',
+            'Not in app environment. This API requires native app support.'));
+        }
+        var queryOffersBridge = global.appbridge['querySubscriptionOffers'];
+        if (typeof queryOffersBridge !== 'function') {
+          return Promise.reject(_makeError('SDK_TOO_OLD',
+            'SuperSDK native too old for subscription offer queries'));
+        }
+
+        var provider = options.provider || '';
+        var productIdsJson = JSON.stringify(options.productIds);
+        return new Promise(function(resolve, reject) {
+          var callbackId = generateCallbackId();
+          registerCallback(callbackId, function(result) {
+            delete callbackMap[callbackId];
+            if (result.code !== 'SUCCESS') {
+              reject(_makeError(result.code || 'QUERY_FAILED', result.message));
+              return;
+            }
+            var rawOffers = (result.data && Array.isArray(result.data.offers))
+              ? result.data.offers : [];
+            var offers = rawOffers.filter(function(offer) {
+              return offer && typeof offer === 'object';
+            }).map(function(offer) {
+              var phases = Array.isArray(offer.pricingPhases) ? offer.pricingPhases : [];
+              return {
+                productId: typeof offer.productId === 'string' ? offer.productId : '',
+                basePlanId: typeof offer.basePlanId === 'string' ? offer.basePlanId : '',
+                offerId: offer.offerId == null ? null : String(offer.offerId),
+                offerTags: Array.isArray(offer.offerTags)
+                  ? offer.offerTags.filter(function(tag) { return typeof tag === 'string'; }) : [],
+                title: typeof offer.title === 'string' ? offer.title : '',
+                description: typeof offer.description === 'string' ? offer.description : '',
+                pricingPhases: phases.filter(function(phase) {
+                  return phase && typeof phase === 'object';
+                }).map(function(phase) {
+                  return {
+                    formattedPrice: typeof phase.formattedPrice === 'string' ? phase.formattedPrice : '',
+                    currencyCode: typeof phase.currencyCode === 'string' ? phase.currencyCode : '',
+                    priceAmountMicros: Number.isFinite(phase.priceAmountMicros) ? phase.priceAmountMicros : 0,
+                    billingPeriod: typeof phase.billingPeriod === 'string' ? phase.billingPeriod : '',
+                    billingCycleCount: Number.isFinite(phase.billingCycleCount) ? phase.billingCycleCount : 0,
+                    recurrenceMode: Number.isFinite(phase.recurrenceMode) ? phase.recurrenceMode : 0
+                  };
+                })
+              };
+            });
+            resolve(offers);
+          }, 30000);
+          queryOffersBridge.call(global.appbridge, provider, productIdsJson, callbackId);
+        });
+      },
+
+      /**
        * 发起购买(F038 v0.3 哑管道 · 单入口聚合 createOrder→pay)
        *
        * 🔴 SDK 是哑管道:仅按 provider 名路由 + 把 createOrder 产出的**不透明 JSON** 透传给 pay ·
@@ -1429,12 +1635,14 @@ export function createLegacyRuntime(global) {
        * @param {Object} payConfig
        * @param {string} [payConfig.provider] - 单 Provider 可省 · 多 Provider 必填
        * @param {Object} payConfig.payParams - createOrder 入参 · 必填(对象)
-       * @param {Function} [payConfig.createOrder] - inline 模式 · (payParams)=>Promise<json>
+       * @param {Function} [payConfig.createOrder] - inline 模式 · (payParams)=>Promise<json> · 🔴 仅与 inline pay 配套;
+       *        无 inline pay 时传 createOrder 非法(reject INVALID_PARAMS)· createOrder-only override 请用 registerProvider
        * @param {Function} [payConfig.pay] - inline 模式 · (json)=>Promise<PayResult3State>(有此则走 inline JS provider)
        * @returns {Promise<Object>} PayResult3State
        *
-       * 路由:① payConfig.pay 函数 → inline JS provider;② provider 注册且含 pay → 三方 JS;
-       *       ③ 其余(未注册 / 仅 createOrder override) → 内置 Native IAP pay;④ 不传 provider → 自动选
+       * 路由:① payConfig.pay 函数 → inline JS provider(可带 inline createOrder);② provider 注册且含 pay → 三方 JS;
+       *       ③ 其余(未注册 / registerProvider 注册的 createOrder-only override) → 内置 Native IAP pay;④ 不传 provider → 自动选
+       *       🔴 inline createOrder 仅在 ① 生效;①之外传 payConfig.createOrder(无 inline pay)= 误用 → INVALID_PARAMS
        */
       purchase: function(payConfig) {
         // ① 输入校验:SDK 仅校验 payConfig/payParams 是对象(不碰 productId 等业务字段 · 哑管道)
@@ -1443,6 +1651,12 @@ export function createLegacyRuntime(global) {
         }
         if (!payConfig.payParams || typeof payConfig.payParams !== 'object' || Array.isArray(payConfig.payParams)) {
           return _invalidParams('payParams must be object');
+        }
+        // inline createOrder 只在配套 inline pay 时才会被消费(inline JS provider 路径)。
+        // 指定 provider 的 createOrder override 必须经 registerProvider 注册,不走 payConfig。
+        // 因此 payConfig.createOrder 存在但 payConfig.pay 不存在 = 误用 → 显式 reject,不再静默丢弃。
+        if (typeof payConfig.createOrder === 'function' && typeof payConfig.pay !== 'function') {
+          return _invalidParams('inline createOrder requires an inline pay function; register a createOrder-only override via registerProvider instead');
         }
 
         var self = SDK;
@@ -1600,6 +1814,104 @@ export function createLegacyRuntime(global) {
         }, 190000);
         global.appbridge.nativePay(provider, jsonString, callbackId);
       });
+    },
+
+    // ==================== 推送 (push namespace · SDK-F261008030551) ====================
+    //
+    // 端内经共享 JSB pushGetStatus / pushRequestPermission / pushSetTags / pushSetUserId；
+    // 事件 push.message / push.opened 走既有 BROADCAST 通道（onMessage / onOpened 即 subscribe 的别名，
+    // 只投递给事件发生时已存活且已订阅的 WebView；冷启动后加载的页面用 getStatus().lastOpened 主动取）。
+    // JS 只做类型兜底后透传：tags 条数 / 长度、userId 长度等边界由 Native PushRegistration 单源判定，
+    // 越界由 Native 回 INVALID_PARAM → 注册表归一 INVALID_ARGUMENT。
+    // 浏览器（无 appbridge）：getStatus resolve {supported:false}，其余 reject NOT_SUPPORTED，不抛同步异常。
+    push: {
+      /**
+       * 推送状态快照。
+       * @returns {Promise<{supported:boolean, permission?:'granted'|'denied'|'prompt', registered?:boolean,
+       *   lastError?:string, lastOpened?:{messageId:string,url?:string,clickType:string,openedAt:number,verified:boolean}}>}
+       *   lastOpened 是一次性字段：由首个读到它的 getStatus() 消费（任何 WebView），之后不再返回；不要在轮询里调用。
+       */
+      getStatus: function() {
+        if (!global.appbridge) return Promise.resolve({ supported: false });
+        return _pushRequest('pushGetStatus', [], 15000).then(_pushStatusFromNative, function(error) {
+          // 容器明确「不支持」（iOS stub 的 NOT_SUPPORTED / 未接线的 NOT_IMPLEMENTED → 注册表 UNSUPPORTED）
+          // 对 getStatus 来说就是 supported:false：它是能力探测，不应该 reject。SDK_TOO_OLD 等其余错误照常抛出。
+          if (error && error.code === 'UNSUPPORTED') return { supported: false };
+          throw error;
+        });
+      },
+
+      /**
+       * 申请通知权限（Android 13+ 弹系统框；更低版本直接返回真实可达性）。
+       * 交互类，callback 超时 120000ms；无前台 Activity 时 reject UNAVAILABLE(retryable)。
+       * @returns {Promise<{permission:'granted'|'denied'|'prompt'}>}
+       */
+      requestPermission: function() {
+        if (!global.appbridge) {
+          return Promise.reject(_pushError('NOT_SUPPORTED', PUSH_NOT_SUPPORTED_DETAIL));
+        }
+        return _pushRequest('pushRequestPermission', [], 120000).then(function(data) {
+          return { permission: typeof data.permission === 'string' ? data.permission : 'denied' };
+        });
+      },
+
+      /**
+       * 设置设备标签；null / [] = 清空（登记体显式带 tags: []）。值变化时 Native 触发重登记。
+       * @param {string[]|null} tags
+       * @returns {Promise<void>}
+       */
+      setTags: function(tags) {
+        if (!global.appbridge) {
+          return Promise.reject(_pushError('NOT_SUPPORTED', PUSH_NOT_SUPPORTED_DETAIL));
+        }
+        var list = tags == null ? [] : tags;
+        if (!Array.isArray(list)) {
+          return Promise.reject(_pushError('INVALID_ARGUMENT', 'tags must be a string array or null'));
+        }
+        for (var i = 0; i < list.length; i++) {
+          if (typeof list[i] !== 'string') {
+            return Promise.reject(_pushError('INVALID_ARGUMENT', 'tags[' + i + '] must be a string'));
+          }
+        }
+        return _pushRequest('pushSetTags', [JSON.stringify(list)], 15000).then(function() { return undefined; });
+      },
+
+      /**
+       * 设置业务用户 ID；null / '' = 清除（登记体显式带 user_id: null）。值变化时 Native 触发重登记。
+       * 🔴 仅用于推送定向，不是身份认证凭据。
+       * @param {string|null} userId
+       * @returns {Promise<void>}
+       */
+      setUserId: function(userId) {
+        if (!global.appbridge) {
+          return Promise.reject(_pushError('NOT_SUPPORTED', PUSH_NOT_SUPPORTED_DETAIL));
+        }
+        if (userId != null && typeof userId !== 'string') {
+          return Promise.reject(_pushError('INVALID_ARGUMENT', 'userId must be a string or null'));
+        }
+        return _pushRequest('pushSetUserId', [userId == null ? '' : userId], 15000).then(function() { return undefined; });
+      },
+
+      /**
+       * 监听前台收到的推送（BROADCAST push.message）。载荷 {messageId,title,body,imageUrl,url,clickType,data}。
+       * @param {Function} callback
+       * @returns {Function} 取消监听
+       */
+      onMessage: function(callback) {
+        if (typeof callback !== 'function') throw _pushError('INVALID_ARGUMENT', 'callback must be a function');
+        return SDK.subscribe('push.message', callback);
+      },
+
+      /**
+       * 监听推送点击（BROADCAST push.opened）。载荷 {messageId,url?,clickType,openedAt,verified}；
+       * 与 getStatus().lastOpened 按 messageId 去重兜底。
+       * @param {Function} callback
+       * @returns {Function} 取消监听
+       */
+      onOpened: function(callback) {
+        if (typeof callback !== 'function') throw _pushError('INVALID_ARGUMENT', 'callback must be a function');
+        return SDK.subscribe('push.opened', callback);
+      }
     },
 
     // ==================== 广告 ====================
@@ -2028,6 +2340,11 @@ export function createLegacyRuntime(global) {
     configurable: false,
     enumerable: false,
     value: installBridge
+  });
+  Object.defineProperty(SDK, '__disposeLegacyBridge', {
+    configurable: false,
+    enumerable: false,
+    value: disposeBridgeBindings
   });
   return SDK;
 }

@@ -29,5 +29,23 @@ export const LIMITS = Object.freeze({
     flushTimeoutMsMax: 15_000,
     flushIntervalMs: 10_000,
     flushIntervalMsMax: 60_000
+  }),
+  monitoring: Object.freeze({
+    pageEnvelopes: 20,
+    pageEnvelopesHard: 40,
+    sessionEnvelopes: 50,
+    sessionEnvelopesHard: 100,
+    bytesPerMinute: 10 * 1024,
+    bytesPerMinuteHard: 20 * 1024,
+    envelopeBytes: 8 * 1024,
+    envelopeBytesHard: 16 * 1024,
+    aggregationKeys: 100,
+    aggregationKeysHard: 200,
+    errorFingerprintsPerPage: 10,
+    errorFingerprintsPerPageHard: 20,
+    drainMs: 5_000,
+    remoteDeadlineMs: 5_000,
+    recentEnvelopes: 20,
+    subscriberQueue: 8
   })
 });

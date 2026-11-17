@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "defaultCodec": "b64t1",
+  "header": "X-Su-Enc",
+  "queryParam": "suenc",
+  "contentType": "application/vnd.suenc",
+  "codecs": {
+    "b64t1": {
+      "type": "custom_base64",
+      "alphabet": "ZIV5l/tru86daXp+omkUqb0Yns1xQvPGDjSE7Mg23eFKHzWTwBfALy4JNcR9OChi",
+      "padding": "=",
+      "charset": "utf-8"
+    }
+  },
+  "rules": {
+    "headerValuePattern": "^[a-z0-9_-]{1,32}$",
+    "stripAsciiWhitespaceBeforeDecode": true,
+    "requireLengthMultipleOfFour": true,
+    "maxPaddingChars": 2,
+    "paddingOnlyAtEnd": true,
+    "requireValidUtf8": true,
+    "maxEncodableBodyBytes": 8388608
+  },
+  "errors": [
+    "UNSUPPORTED_SUENC_CODEC",
+    "SUENC_DECODE_FAILED",
+    "SUENC_INVALID_UTF8",
+    "SUENC_DOWNGRADE",
+    "SUENC_RESPONSE_TOO_LARGE",
+    "SUENC_PROTOCOL_ERROR"
+  ],
+  "provenance": {
+    "alphabetSeed": "supersdk/suenc/b64t1@2026-08-30",
+    "alphabetAlgorithm": "fisher-yates over standard base64 alphabet, PRNG = sha256(seed + \"#\" + counter) big-endian u32, rejection sampling",
+    "note": "b64t1 发布后 alphabet 永不可改；新表必须使用新的 codec key。"
+  }
+}

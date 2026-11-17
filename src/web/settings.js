@@ -1,5 +1,6 @@
 import { sdkError, isSuperSDKError } from '../core/errors.js';
 import { isPlainObject, joinApiUrl, stableHash, stableStringify, utf8Bytes } from '../core/utils.js';
+import { readJsonWithSuEnc, SUENC_ERROR_CODES } from '../suenc/codec.js';
 
 const RESERVED_PARAMS = new Set(['spid', 'env', 'aid', 'configName']);
 
@@ -114,7 +115,9 @@ export function createSettingsClient({ getConfig, fetchImpl, diagnostics, crypto
     if (response.status === 429) throw sdkError('RATE_LIMITED');
     if (response.status >= 500) throw sdkError('UNAVAILABLE');
     let envelope;
-    try { envelope = await response.json(); } catch (error) {
+    try { envelope = await readJsonWithSuEnc(response); } catch (error) {
+      // suenc 解码失败必须原样上抛：不得回落到明文，也不得被泛化成协议错误
+      if (isSuperSDKError(error) && SUENC_ERROR_CODES.has(error.code)) throw error;
       throw sdkError(response.ok ? 'PROTOCOL_MISMATCH' : 'UNAVAILABLE', { cause: error });
     }
     const code = envelope?.code;

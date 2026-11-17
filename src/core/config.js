@@ -6,6 +6,19 @@ const DEFAULT_API_BASE_URL = 'https://api.supersdk.com/superapi';
 const SPID_PATTERN = /^[a-z0-9]{8}$/;
 const ENV_PATTERN = /^[a-z0-9]{1,10}$/;
 
+/**
+ * 校验项目环境值（与原生 setAPIEnvironment 同规则）：不 trim、不折大小写，非法即抛。
+ */
+export function validateEnvironment(environment) {
+  if (typeof environment !== 'string' || !ENV_PATTERN.test(environment)) {
+    const error = new RangeError('environment must match ^[a-z0-9]{1,10}$');
+    error.code = 'INVALID_ARGUMENT';
+    error.retryable = false;
+    throw error;
+  }
+  return environment;
+}
+
 export function normalizeConfig(input, previous = null) {
   if (!isPlainObject(input)) throw legacyConfigError(TypeError, 'config', 'must be a plain object');
   if (Object.prototype.hasOwnProperty.call(input, 'aid')) throw legacyConfigError(TypeError, 'aid', 'is unsupported; use spid');

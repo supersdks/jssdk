@@ -26,7 +26,7 @@ test('legacy_global_and_ready_contract_survives_iife_load', async function legac
   assert.equal(ready, 1);
   sdk.installGlobal();
   assert.equal(target.SuperSDK, sdk);
-  assert.equal(ready, 2);
+  assert.equal(ready, 1, 'one physical hub installation sends one ready notification');
 });
 
 test('denied_first_init_removes_legacy_identity_and_outbox_across_reload', async function denied_first_init_removes_legacy_identity_and_outbox_across_reload() {
